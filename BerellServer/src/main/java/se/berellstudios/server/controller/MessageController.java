@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/timecapsule")
+@RequestMapping("/messages")
 public class MessageController {
 
     @Autowired
@@ -75,8 +75,8 @@ public class MessageController {
             return List.of("Invalid token");
         }
 
-        String username = jwtUtil.extractUsername(jwtToken);
-        UserEntity user = userRepository.findByEmail(username);
+        String userEmail = jwtUtil.extractUsername(jwtToken);
+        UserEntity user = userRepository.findByEmail(userEmail);
 
         //Fetch all time capsules for the user
         List<MessageEntity> messages = user.getMessages();

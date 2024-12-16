@@ -6,8 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.print.attribute.standard.DateTimeAtCreation;
+
+
 @Entity(name = "messages")
-@Table(name = "timecapsule")
+@Table(name = "messages")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -23,6 +26,9 @@ public class MessageEntity {
     private String messageContent;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "created_by", nullable = false)
     private UserEntity user;
+
+    @Column(name = "created_time")
+    private DateTimeAtCreation createdTime;
 }
