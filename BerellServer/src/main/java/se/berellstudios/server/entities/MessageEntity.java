@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.print.attribute.standard.DateTimeAtCreation;
+import java.time.LocalDateTime;
 
 
 @Entity(name = "messages")
@@ -30,5 +29,5 @@ public class MessageEntity {
     private UserEntity user;
 
     @Column(name = "created_time")
-    private DateTimeAtCreation createdTime;
+    private LocalDateTime createdTime;
 }
