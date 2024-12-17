@@ -1,6 +1,5 @@
 package se.berellstudios.app
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -12,45 +11,32 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import se.berellstudios.app.PingResponse
-import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.ui.theme.BerellAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-
-        val PREFS_NAME = "MyAppPrefs"
-        val TOKEN_KEY = "jwt_token"
         setContent {
             BerellAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                            .padding(16.dp)
-                    ) {
-                        Greeting(name = "Android")
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { callPingApi() }) {
-                            Text("Ping Server")
-                        }
-                    }
-                }
+                AppNavigation()
             }
         }
     }
 
-    private fun callPingApi() {
+    @Composable
+    fun callPingApi() {
         RetrofitClient.apiService.ping().enqueue(object : Callback<PingResponse> {
             override fun onResponse(call: Call<PingResponse>, response: Response<PingResponse>) {
                 if (response.isSuccessful) {
@@ -70,6 +56,104 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun AppNavigation() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "login") {
+        composable("login") { LogInScreen(navController) }
+        composable("startpage") { StartPageScreen(navController) }
+        composable("createuser") { CreateUserScreen(navController) }
+    }
+}
+
+@Composable
+fun StartPageScreen(navController: NavController) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        BerellAppTheme {
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    Greeting(name = "JOEL ÄR INLOGGAD")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+
+                            navController.navigate("login")
+                        }
+                    ) {
+                        Text("Tillbaka till start")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LogInScreen(navController: NavController) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        BerellAppTheme {
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    Greeting(name = "User")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+                            //callPingApi()
+                            navController.navigate("startpage")
+                        }
+                    ) {
+                        Text("Ping Server")
+                    }
+                    Button(
+                        onClick = {
+                            //callPingApi()
+                            navController.navigate("createuser")
+                        }
+                    ) {
+                        Text("Skapa användare")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CreateUserScreen(navController: NavController) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        BerellAppTheme {
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    Greeting(name = "NY ANVÄNDARE SOM VILL SKAPA KONTO")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = {
+
+                            navController.navigate("login")
+                        }
+                    ) {
+                        Text("Tillbaka till start")
+                    }
+                }
+            }
+        }
+    }
+}
+@Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(text = "Hello $name!", modifier = modifier)
 }
@@ -83,8 +167,17 @@ fun GreetingPreview() {
 }
 
 
-/*function for saving token to sharedPrefs
-private fun saveToken(token: String) {
-    val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+
+
+
+
+/*
+ * Funktion för att spara token till SharedPreferences
+
+private fun saveToken(context: Context, token: String) {
+    val PREFS_NAME = "MyAppPrefs"
+    val TOKEN_KEY = "jwt_token"
+    val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     sharedPreferences.edit().putString(TOKEN_KEY, token).apply()
-}*/
+} */
