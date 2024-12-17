@@ -1,5 +1,8 @@
 package se.berellstudios.app
 
+import ApiService
+import android.content.Context
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -26,16 +29,37 @@ object RetrofitClient {
      * Tror inte vi ska pilla mer i denna sen så då kan vi kanske lägga till denna i .gitignore med.
      * ***/
 
+    private var jwtToken: String? = null
+
+    //The authInterceptor appends the JWT token to every requests header so we dont need to do it manually
+    private val authInterceptor = Interceptor { chain ->
+        val requestBuilder = chain.request().newBuilder()
+        jwtToken?.let { token ->
+            requestBuilder.addHeader("Authorization", "Bearer $token")
+        }
+        chain.proceed(requestBuilder.build())
+    }
+
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(authInterceptor)
+        .build()
 
     val apiService: ApiService by lazy {
-        val okHttpClient = OkHttpClient.Builder().build()
-
-        val retrofit = Retrofit.Builder()
+        Retrofit.Builder()
             .baseUrl(BASE_URL_JOEL)
-            .client(okHttpClient)
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+            .create(ApiService::class.java)
+    }
 
-        retrofit.create(ApiService::class.java)
+    fun getToken(applicationContext: Context): String? = jwtToken
+
+    fun setToken(token: String) {
+        jwtToken = token
+    }
+
+    fun clearToken() {
+        jwtToken = null
     }
 }

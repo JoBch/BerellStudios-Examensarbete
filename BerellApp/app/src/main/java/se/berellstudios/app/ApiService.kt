@@ -1,26 +1,38 @@
-package se.berellstudios.app
-
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
-//Data classes for request and response bodies
-data class LoginRequest(val email: String, val password: String)
-data class LoginResponse(val token: String)
+data class UserLoginRequest(val email: String, val password: String)
+data class UserRegisterRequest(val email: String, val username: String, val password: String)
+data class MessageRequest(val message: String)
 data class PingResponse(val message: String)
+
+data class LoginResponse(val token: String)
+data class MessageResponse(val message: String)
 
 interface ApiService {
 
-    //Ping endpoint to check server status, used to check the connection
-    @GET("/users/ping")
-    fun ping(): Call<PingResponse>
-
-    //This is just here to remember we have this path in the server
+    //Förbereder för det vi kan behöva
     @POST("/users/login")
-    fun loginUser(@Body credentials: LoginRequest): Call<LoginResponse>
+    suspend fun login(@Body loginRequest: UserLoginRequest): LoginResponse
 
-    //This is just here to remember we have this path in the server
+    //Förbereder för det vi kan behöva
     @POST("/users/register")
-    fun registerUser(@Body newUser: Map<String, String>): Call<Map<String, String>>
+    suspend fun register(@Body registerRequest: UserRegisterRequest): MessageResponse
+
+    //Förbereder för det vi kan behöva
+    @POST("/messages/create")
+    suspend fun createMessage(
+        @Body request: MessageRequest,
+    ): MessageResponse
+
+    //Förbereder för det vi kan behöva
+    @GET("/messages/view")
+    suspend fun viewMessages() : List<String>
+
+    @GET("/users/ping")
+    fun ping() : Call<PingResponse>
+
 }
+

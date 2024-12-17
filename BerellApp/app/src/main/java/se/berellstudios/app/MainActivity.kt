@@ -5,13 +5,14 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,62 +23,68 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BerellAppTheme {
-                AppNavigation()
-            }
-        }
-    }
 
-
-    fun callPingApi() {
-        RetrofitClient.apiService.ping().enqueue(object : Callback<PingResponse> {
-            override fun onResponse(call: Call<PingResponse>, response: Response<PingResponse>) {
-                if (response.isSuccessful) {
-                    val message = response.body()?.message ?: "No message"
-                    Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(applicationContext, "Server Error", Toast.LENGTH_SHORT).show()
+        val token = RetrofitClient.getToken(applicationContext)
+        if (token != null) {
+            // Token exists, navigate to start page
+            setContent {
+                BerellAppTheme {
+                    AppNavigation(isLoggedIn = true) // Pass the logged-in state
                 }
             }
-
-            override fun onFailure(call: Call<PingResponse>, t: Throwable) {
-                Toast.makeText(applicationContext, "Network Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                Log.d("Berell", "\"Network Error: ${t.message}\"")
+        } else {
+            // Token doesn't exist, navigate to login
+            setContent {
+                BerellAppTheme {
+                    AppNavigation(isLoggedIn = false) // Pass the logged-in state
+                }
             }
-        })
+        }
     }
 }
+
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(isLoggedIn: Boolean) {
     val navController = rememberNavController()
-    val context = LocalContext.current as MainActivity
 
-    NavHost(navController = navController, startDestination = "login") {
+    // Start at "login" or "startpage" based on token presence
+    val startDestination = if (isLoggedIn) "startpage" else "login"
+
+    NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
+            val mainViewModel: MainViewModel = viewModel()
             LogInScreen(
                 navController = navController,
-                callPingApi = { context.callPingApi() }
+                mainViewModel = mainViewModel
             )
         }
-        composable("startpage") { StartPageScreen(navController) }
-        composable("createuser") { CreateUserScreen(navController) }
+        composable("startpage") {
+            StartPageScreen(navController = navController)
+        }
+        composable("createuser") {
+            val mainViewModel: MainViewModel = viewModel()
+            CreateUserScreen(
+                navController = navController,
+                mainViewModel = mainViewModel
+                )
+        }
     }
 }
+
 
 @Composable
 fun StartPageScreen(navController: NavController) {
@@ -107,9 +114,23 @@ fun StartPageScreen(navController: NavController) {
 }
 
 @Composable
-fun LogInScreen(navController: NavController, callPingApi: () -> Unit) {
+fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    //Observe the login state
+    val loggedIn by mainViewModel.loggedIn.observeAsState(false)
+
+    //If the user is logged in, navigate to the start page
+    if (loggedIn) {
+        LaunchedEffect(Unit) {
+            navController.navigate("startpage") {
+                popUpTo("login") { inclusive = true }
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
@@ -120,20 +141,20 @@ fun LogInScreen(navController: NavController, callPingApi: () -> Unit) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    Greeting(name = "User")
+                    Greeting(name = "Log In")
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Textfält för användarnamn
+                    //Username input
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
-                        label = { Text("Username") },
+                        label = { Text("Email") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Textfält för lösenord
+                    //Password input
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -142,24 +163,42 @@ fun LogInScreen(navController: NavController, callPingApi: () -> Unit) {
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    //Show error message if any
+                    if (errorMessage.isNotEmpty()) {
+                        Text(
+                            text = errorMessage,
+                            color = Color.Red,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Ping Server-knappen
+                    //Login button
                     Button(
                         onClick = {
-                            Log.i("Andreas", "LogInUserScreen: $username")
-                            Log.i("Andreas", "LogInUserScreen: $password")
-
-                            //kod för att spara något i sharePref?
-                            navController.navigate("startpage")
+                            //Call the login function from ViewModel
+                            mainViewModel.login(context, username, password)
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("logga in")
+                        Text("Log in")
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    //Ping Server button
                     Button(
                         onClick = {
-                            callPingApi() // Anropa callPingApi här
+                            APICalls.callPingApi(
+                                context = context,
+                                onSuccess = { message ->
+                                    Toast.makeText(context, "Ping Success: $message", Toast.LENGTH_SHORT).show()
+                                },
+                                onError = { error ->
+                                    Toast.makeText(context, "Ping Error: $error", Toast.LENGTH_SHORT).show()
+                                }
+                            )
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -168,15 +207,14 @@ fun LogInScreen(navController: NavController, callPingApi: () -> Unit) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Skapa användare-knappen
+                    //Create user button
                     Button(
                         onClick = {
-
                             navController.navigate("createuser")
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Skapa användare")
+                        Text("Create user")
                     }
                 }
             }
@@ -184,8 +222,9 @@ fun LogInScreen(navController: NavController, callPingApi: () -> Unit) {
     }
 }
 
+
 @Composable
-fun CreateUserScreen(navController: NavController) {
+fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -200,21 +239,21 @@ fun CreateUserScreen(navController: NavController) {
                 ) {
                     Greeting(name = "NY ANVÄNDARE SOM VILL SKAPA KONTO")
                     Spacer(modifier = Modifier.height(16.dp))
-                    // Textfält för användarnamn
-                    // Textfält för användarnamn
+                    // Textfält för email
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("your email please") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    // Textfält för användarnamn
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
                         label = { Text("feed me a GOOD username") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    // Textfält för användarnamn
+                    // Textfält för lösenord
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -223,9 +262,14 @@ fun CreateUserScreen(navController: NavController) {
                     )
                     Button(
                         onClick = {
+                            //Calling register to register a user.
+                            mainViewModel.register(email, username, password)
+
                             Log.i("Andreas", "CreateUserScreen: $username")
                             Log.i("Andreas", "CreateUserScreen: $email")
                             Log.i("Andreas", "CreateUserScreen: $password")
+
+                            //This should be done in the register function
                             navController.navigate("login")
                         }
                     ) {
@@ -248,19 +292,3 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
-
-
-
-
-
-
-
-/*
- * Funktion för att spara token till SharedPreferences
-
-private fun saveToken(context: Context, token: String) {
-    val PREFS_NAME = "MyAppPrefs"
-    val TOKEN_KEY = "jwt_token"
-    val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    sharedPreferences.edit().putString(TOKEN_KEY, token).apply()
-} */
