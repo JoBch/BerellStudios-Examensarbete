@@ -1,5 +1,6 @@
 package se.berellstudios.app
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -26,6 +27,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+
+        val PREFS_NAME = "MyAppPrefs"
+        val TOKEN_KEY = "jwt_token"
         setContent {
             BerellAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -77,3 +81,10 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+
+/*function for saving token to sharedPrefs
+private fun saveToken(token: String) {
+    val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    sharedPreferences.edit().putString(TOKEN_KEY, token).apply()
+}*/
