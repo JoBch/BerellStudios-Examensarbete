@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class AccessConfig {
 
-    //Denna gör så att allt kryper igenom utan auth
+    //Denna gör så att allt kryper igenom utan auth får väl kika på att göra oss av med denna
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests(authorizeRequests -> authorizeRequests.anyRequest()

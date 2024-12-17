@@ -48,9 +48,17 @@ public class UserController {
         }
     }
 
+    //Mest för att kolla så vi är uppkopplade mot db och allting funkar.
+    @GetMapping("/getuser")
+    public Map<String, String> getUser() {
+        Map<String, String> user = new HashMap<>();
+        user.put("email", userService.findUserById(1).getEmail());
+        return user;
+    }
+
     @GetMapping("/ping")
     public Map<String, String> ping() {
-        // This returns a simple response when the server is up and reachable
+        //This returns a simple response when the server is up and reachable
         return Map.of("message", "Server is running and connected!");
     }
 }
