@@ -1,6 +1,5 @@
 package se.berellstudios.app
 
-import JWTUtils
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.LiveData

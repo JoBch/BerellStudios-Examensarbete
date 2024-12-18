@@ -29,6 +29,7 @@ object RetrofitClient {
      * Tror inte vi ska pilla mer i denna sen så då kan vi kanske lägga till denna i .gitignore med.
      * ***/
 
+    //TODO försöka göra oss av med denna och köra authInterceptor från sharedpref på nåt sätt.
     private var jwtToken: String? = null //Need to set token locally so we can use the authInterceptor
 
     //The authInterceptor appends the JWT token to every requests header so we dont need to do it manually
@@ -75,7 +76,7 @@ object RetrofitClient {
     fun clearToken(context: Context) {
         val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         sharedPref.edit().remove("token").apply()
-        jwtToken = null
+        jwtToken = null //Need to set token locally so we can use the authInterceptor
     }
 
     fun setRole(context: Context, role: String?) {
