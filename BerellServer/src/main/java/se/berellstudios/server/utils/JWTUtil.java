@@ -11,16 +11,17 @@ import java.util.Date;
 @Component
 public class JWTUtil {
 
-    //Generate JWT token
-    public static String generateToken(String username) throws JOSEException {
+    public static String generateToken(String username, String role) throws JOSEException {
         final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
         final long TOKEN_VALIDITY = 100 * 60 * 60 * 10;
 
         //Create the HMAC signer with the secret key
         JWSSigner signer = new MACSigner(SECRET_KEY.getBytes());
 
+        //Add role to the claims
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
+                .claim("role", role) //Include the user's role
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() + TOKEN_VALIDITY))
                 .build();
@@ -34,6 +35,7 @@ public class JWTUtil {
         jwsObject.sign(signer);
         return jwsObject.serialize();
     }
+
 
     //Validate and parse the JWT token
     public boolean validateToken(String token) throws JOSEException, java.text.ParseException {
@@ -51,6 +53,13 @@ public class JWTUtil {
         JWSObject jwsObject = JWSObject.parse(token);
         JWTClaimsSet claimsSet = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
         return claimsSet.getSubject();
+    }
+
+    //To extract the role from the token(if we need it)
+    public String extractRole(String token) throws java.text.ParseException {
+        JWSObject jwsObject = JWSObject.parse(token);
+        JWTClaimsSet claimsSet = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
+        return claimsSet.getClaim("role").toString();
     }
 
     //Check if the token has expired

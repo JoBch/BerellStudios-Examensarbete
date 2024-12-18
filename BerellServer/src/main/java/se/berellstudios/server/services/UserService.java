@@ -39,7 +39,7 @@ public class UserService {
         if (userEntity == null || !hashing.verifyPassword(password, userEntity.getPassword())) {
             return false;
         }
-        UserDTO userDTO = new UserDTO(userEntity.getId(), userEntity.getPassword(), userEntity.getUsername());
+        UserDTO userDTO = new UserDTO(userEntity.getId(), userEntity.getPassword(), userEntity.getUsername(), userEntity.getRole());
         session.setAttribute("user", userDTO);
         return true;
     }

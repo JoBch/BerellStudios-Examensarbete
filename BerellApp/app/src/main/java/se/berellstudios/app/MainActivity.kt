@@ -5,7 +5,16 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -13,43 +22,42 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import se.berellstudios.app.ui.theme.BerellAppTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        RetrofitClient.loadToken(applicationContext)
         val token = RetrofitClient.getToken(applicationContext)
         if (token != null) {
-            // Token exists, navigate to start page
+            //Token exists, navigate to start page
             setContent {
                 BerellAppTheme {
-                    AppNavigation(isLoggedIn = true) // Pass the logged-in state
+                    AppNavigation(isLoggedIn = true)
                 }
             }
         } else {
-            // Token doesn't exist, navigate to login
+            //Token doesnt exist, navigate to login
             setContent {
                 BerellAppTheme {
-                    AppNavigation(isLoggedIn = false) // Pass the logged-in state
+                    AppNavigation(isLoggedIn = false)
                 }
             }
         }
@@ -61,7 +69,7 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(isLoggedIn: Boolean) {
     val navController = rememberNavController()
 
-    // Start at "login" or "startpage" based on token presence
+    //Start at "login" or "startpage" based on token presence
     val startDestination = if (isLoggedIn) "startpage" else "login"
 
     NavHost(navController = navController, startDestination = startDestination) {
@@ -69,25 +77,33 @@ fun AppNavigation(isLoggedIn: Boolean) {
             val mainViewModel: MainViewModel = viewModel()
             LogInScreen(
                 navController = navController,
-                mainViewModel = mainViewModel
+                viewModel = mainViewModel
             )
         }
         composable("startpage") {
-            StartPageScreen(navController = navController)
+            val mainViewModel: MainViewModel = viewModel()
+            LandingScreen(
+                navController = navController,
+                mainViewModel = mainViewModel
+            )
         }
         composable("createuser") {
             val mainViewModel: MainViewModel = viewModel()
             CreateUserScreen(
                 navController = navController,
-                mainViewModel = mainViewModel
-                )
+                viewModel = mainViewModel
+            )
         }
     }
 }
 
-
+//TODO vi behöver olika landingScreen beroende på om det är admin eller user som loggar in.
+//Vi kan få  tag i det med getRole() nu
 @Composable
-fun StartPageScreen(navController: NavController) {
+fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
+    var message by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -96,17 +112,54 @@ fun StartPageScreen(navController: NavController) {
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(16.dp)
-                ) {
-                    Greeting(name = "JOEL ÄR INLOGGAD")
+                )
+                {
+                    Greeting(name = "JOEL ÄR INLOGGAD") //TODO Ändra till att den tar från token här eller nåt annat vid inlogging
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = message,
+                        onValueChange = { message = it },
+                        label = { Text("Enter message to save to DB") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     Button(
                         onClick = {
-
+                            //Calling createMessage
+                            mainViewModel.createMessage(context, message)
+                            Log.i("Andreas", "CreateMessage: $message")
+                        }
+                    ) {
+                        Text("Create Message")
+                    }
+                    Button(
+                        onClick = {
                             navController.navigate("login")
                         }
                     ) {
                         Text("Tillbaka till start")
                     }
+                    Button(
+                        onClick = {
+                            //Calling viewMessages
+                            mainViewModel.viewMessages()
+                        }
+                    ) {
+                        Text("Fetch Messages")
+                    }
+                    Button(
+                        onClick = {
+                            //Calling logout so we set loggedIn to false
+                            mainViewModel.logout(context)
+                            navController.navigate("login") //TODO kolla på hur vi kan bli av med denna
+                        }
+                    ) {
+                        Text("Logout user")
+                    }
+                    //Adding some space
+                    Spacer(modifier = Modifier.height(16.dp))
+                    //Calling messagelist which builds the list from response of "viewMessages"
+                    MessageList(viewModel = mainViewModel)
                 }
             }
         }
@@ -114,14 +167,14 @@ fun StartPageScreen(navController: NavController) {
 }
 
 @Composable
-fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
+fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     //Observe the login state
-    val loggedIn by mainViewModel.loggedIn.observeAsState(false)
+    val loggedIn by viewModel.loggedIn.observeAsState(false)
 
     //If the user is logged in, navigate to the start page
     if (loggedIn) {
@@ -178,7 +231,7 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                     Button(
                         onClick = {
                             //Call the login function from ViewModel
-                            mainViewModel.login(context, username, password)
+                            viewModel.login(context, username, password)
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -187,16 +240,24 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    //Ping Server button
+                    //TODO ta bort denna när vi känner oss säkra på uppkopplingen mot server för att rensa kod
                     Button(
                         onClick = {
                             APICalls.callPingApi(
                                 context = context,
                                 onSuccess = { message ->
-                                    Toast.makeText(context, "Ping Success: $message", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Ping Success: $message",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 },
                                 onError = { error ->
-                                    Toast.makeText(context, "Ping Error: $error", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Ping Error: $error",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             )
                         },
@@ -224,7 +285,7 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
 
 
 @Composable
-fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel) {
+fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -263,13 +324,8 @@ fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel)
                     Button(
                         onClick = {
                             //Calling register to register a user.
-                            mainViewModel.register(email, username, password)
-
-                            Log.i("Andreas", "CreateUserScreen: $username")
-                            Log.i("Andreas", "CreateUserScreen: $email")
-                            Log.i("Andreas", "CreateUserScreen: $password")
-
-                            //This should be done in the register function
+                            viewModel.register(email, username, password)
+                            //TODO detta borde lösas med variabler från MVM inte navcontroller här
                             navController.navigate("login")
                         }
                     ) {
@@ -280,6 +336,38 @@ fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel)
         }
     }
 }
+
+@Composable
+fun MessageList(viewModel: MainViewModel) {
+    val messages by viewModel.messages.collectAsState()
+    //Building the messagelist using the stateflow populated in MVM
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Messages",
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        LazyColumn {
+            //Iterating through the messages from MVM and populating the LazyColumn 1 by 1
+            items(messages) { message ->
+                Text(
+                    text = "" + message,
+                    modifier = Modifier //TODO snygga till "CSS"
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .background(Color.LightGray)
+                        .padding(8.dp)
+                )
+            }
+        }
+    }
+}
+
+//TODO hejdå till detta?
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(text = "Hello $name!", modifier = modifier)

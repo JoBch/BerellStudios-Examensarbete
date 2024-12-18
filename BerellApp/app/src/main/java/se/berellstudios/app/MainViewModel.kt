@@ -1,9 +1,8 @@
 package se.berellstudios.app
 
-import MessageRequest
-import UserLoginRequest
-import UserRegisterRequest
+import JWTUtils
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,7 +18,7 @@ class MainViewModel : ViewModel() {
     val loggedIn: LiveData<Boolean> get() = _loggedIn
 
     private val _messages = MutableStateFlow<List<String>>(emptyList())
-    val messages: StateFlow<List<String>> get() = _messages
+    val messages: StateFlow<List<String>> = _messages
 
     private val _errorMessage = MutableStateFlow<String>("")
     val errorMessage: StateFlow<String> get() = _errorMessage
@@ -33,10 +32,15 @@ class MainViewModel : ViewModel() {
                 val response = RetrofitClient.apiService.login(loginRequest)
                 //Check if the response contains a token
                 if (response.token != null) {
-                    val token = response.token!!
-                    RetrofitClient.setToken(token)  //Set the token
+                    val token = response.token
+                    RetrofitClient.setToken(context, token)  //Set the token
                     _loggedIn.value = true
                     println("Token: $token")
+
+                    //Decode the token to get the role and saving it in sharedpref
+                    val role = JWTUtils.getClaim(token, "role")
+                    RetrofitClient.setRole(context, role)
+                    println("User Role: $role")
                 } else {
                     //Handle error if token is not present
                     println("Login failed: $response")
@@ -47,7 +51,6 @@ class MainViewModel : ViewModel() {
             }
         }
     }
-
 
 
     fun register(email: String, username: String, password: String) {
@@ -65,15 +68,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun createMessage(message: String) {
+    fun createMessage(context: Context, message: String) {
         viewModelScope.launch {
             try {
-                RetrofitClient.apiService.createMessage(
-                    MessageRequest(message),
-                )
-                println("Time capsule created successfully!")
+                val messageRequest = MessageRequest(message)
+                val response = RetrofitClient.apiService.createMessage(messageRequest)
+                Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                println("Failed to create time capsule: ${e.message}")
+                println("Failed to create message: ${e.message}")
             }
         }
     }
@@ -81,7 +83,9 @@ class MainViewModel : ViewModel() {
     fun viewMessages() {
         viewModelScope.launch {
             try {
+                //Calling the server for messages
                 val response = RetrofitClient.apiService.viewMessages()
+                //Setting the StateFlow so we can send the data to the activity
                 _messages.value = response
             } catch (e: Exception) {
                 println("Failed to fetch time capsules: ${e.message}")
@@ -89,8 +93,9 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun logout() {
-        RetrofitClient.clearToken()
+    fun logout(context: Context) {
+        RetrofitClient.clearToken(context)
+        RetrofitClient.clearRole(context)
         _loggedIn.value = false
     }
 }

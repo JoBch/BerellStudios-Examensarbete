@@ -1,7 +1,9 @@
 package se.berellstudios.server.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.berellstudios.server.entities.UserEntity;
+import se.berellstudios.server.repositories.UserRepository;
 import se.berellstudios.server.services.UserService;
 import se.berellstudios.server.utils.JWTUtil;
 import com.nimbusds.jose.JOSEException;
@@ -19,6 +21,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/register")
     public Map<String, String> registerUser(@RequestBody UserEntity newUser) {
         try {
@@ -30,23 +35,30 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> loginUser(@RequestBody Map<String, Object> credentials, HttpSession session) throws JOSEException {
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, Object> credentials, HttpSession session) throws JOSEException {
         String email = (String) credentials.get("email");
         String password = (String) credentials.get("password");
 
         boolean loginSuccessful = userService.loginUser(email, password, session);
         if (loginSuccessful) {
+            // Fetch user from the database to get the role
+            UserEntity user = userRepository.findByEmail(email);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not found"));
+            }
 
-            String token = JWTUtil.generateToken(email);
+            String role = user.getRole();
+            String token = JWTUtil.generateToken(email, role); //Pass the role to the token generator
 
-            //Return token in response
+            // Return token in the response
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
-            return ResponseEntity.ok(response).getBody();
+            return ResponseEntity.ok(response);
         } else {
-            return Map.of("error", "Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
         }
     }
+
 
     //Mest för att kolla så vi är uppkopplade mot db och allting funkar.
     @GetMapping("/getuser")

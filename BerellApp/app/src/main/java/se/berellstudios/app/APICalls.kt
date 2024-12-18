@@ -1,15 +1,13 @@
 package se.berellstudios.app
 
-import PingResponse
-import UserLoginRequest
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-//Kanske döda denna nu när vi vet att kopplingen funkar?
+//TODO Kanske döda denna nu när vi vet att kopplingen funkar?
 
 object APICalls {
 
@@ -35,8 +33,6 @@ object APICalls {
             }
         })
     }
-
-
 
 
 }

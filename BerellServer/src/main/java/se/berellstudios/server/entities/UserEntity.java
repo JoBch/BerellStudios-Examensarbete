@@ -30,7 +30,9 @@ public class UserEntity {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "role")
+    private String role;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MessageEntity> messages = new ArrayList<>();
-
 }

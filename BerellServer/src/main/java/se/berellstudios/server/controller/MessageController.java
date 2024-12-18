@@ -1,5 +1,6 @@
 package se.berellstudios.server.controller;
 
+import org.springframework.http.ResponseEntity;
 import se.berellstudios.server.dtos.MessageDTO;
 import se.berellstudios.server.entities.MessageEntity;
 import se.berellstudios.server.entities.UserEntity;
@@ -10,7 +11,10 @@ import se.berellstudios.server.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/messages")
@@ -29,30 +33,35 @@ public class MessageController {
     private AESUtil aesUtil;
 
     @PostMapping("/create")
-    public String createTimeCapsule(@RequestHeader("Authorization") String token, @RequestBody MessageDTO messageDTO)
+    public ResponseEntity<Map<String, String>> createMessage(@RequestHeader("Authorization") String token, @RequestBody MessageDTO messageDTO)
             throws Exception {
 
-        System.out.println(token);
+        Map<String, String> response = new HashMap<>();
+
         //Check if the token is present
         if (token == null || !token.startsWith("Bearer ")) {
-            return "No token provided";
+            response.put("message", "No token provided");
+            return ResponseEntity.badRequest().body(response);
         }
 
         //Extract the token from the header and validate it
         String jwtToken = token.substring(7);
         if (!jwtUtil.validateToken(jwtToken)) {
-            return "Invalid token";
+            response.put("message", "Invalid token");
+            return ResponseEntity.badRequest().body(response);
         }
 
         //Check if the token has expired
         if (jwtUtil.isTokenExpired(jwtToken)) {
-            return "Token has expired";
+            response.put("message", "Token has expired");
+            return ResponseEntity.badRequest().body(response);
         }
 
         String username = jwtUtil.extractUsername(jwtToken);
         UserEntity user = userRepository.findByEmail(username);
         if (user == null) {
-            return "User not found";
+            response.put("message", "User not found");
+            return ResponseEntity.badRequest().body(response);
         }
 
         String encryptedMessage = aesUtil.encryptMessage(messageDTO.getMessage());
@@ -61,15 +70,17 @@ public class MessageController {
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setMessageContent(encryptedMessage);
         messageEntity.setUser(user);
+        messageEntity.setCreatedTime(LocalDateTime.now());
 
         messageRepository.save(messageEntity);
 
-        return "Time capsule created!";
+        response.put("message", "Message Created!");
+        return ResponseEntity.ok(response);
     }
 
 
     @GetMapping("/view")
-    public List<String> viewTimeCapsules(@RequestHeader("Authorization") String token) throws Exception {
+    public List<String> viewMessages(@RequestHeader("Authorization") String token) throws Exception {
         String jwtToken = token.substring(7);
         if (!jwtUtil.validateToken(jwtToken)) {
             return List.of("Invalid token");

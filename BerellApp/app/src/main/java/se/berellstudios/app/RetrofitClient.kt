@@ -1,6 +1,5 @@
 package se.berellstudios.app
 
-import ApiService
 import android.content.Context
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -11,6 +10,7 @@ object RetrofitClient {
 
     private const val BASE_URL_JOEL = "http://192.168.1.102:8080"  //Joels ip-adress
     private const val BASE_URL_ANDREAS = "http://DIN_DATORS_IP_HÄR:8080"  //Andreas ip-adress
+
     /***
      * Du kommer behöva ändra ip-adressen i res/xml/network_security_config.xml
      * till samma som din ip-adress här uppe. Har lagt till i .gitignore så vi borde bara behöva göra detta en gång.
@@ -29,7 +29,7 @@ object RetrofitClient {
      * Tror inte vi ska pilla mer i denna sen så då kan vi kanske lägga till denna i .gitignore med.
      * ***/
 
-    private var jwtToken: String? = null
+    private var jwtToken: String? = null //Need to set token locally so we can use the authInterceptor
 
     //The authInterceptor appends the JWT token to every requests header so we dont need to do it manually
     private val authInterceptor = Interceptor { chain ->
@@ -39,6 +39,7 @@ object RetrofitClient {
         }
         chain.proceed(requestBuilder.build())
     }
+
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
@@ -53,13 +54,43 @@ object RetrofitClient {
             .create(ApiService::class.java)
     }
 
-    fun getToken(applicationContext: Context): String? = jwtToken
+    //Tror detta borde funka för att behålla allt. INTE glömma att kalla på allt där det ska kallas på bara
 
-    fun setToken(token: String) {
-        jwtToken = token
+    //Load the token from SharedPreferences when the app starts to set it locally for authInterceptor
+    fun loadToken(context: Context) {
+        jwtToken = getToken(context)
     }
 
-    fun clearToken() {
+    fun getToken(context: Context): String? {
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        return sharedPref.getString("token", null)
+    }
+
+    fun setToken(context: Context, token: String) {
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        sharedPref.edit().putString("token", token).apply()
+        jwtToken = token //Need to set token locally so we can use the authInterceptor
+    }
+
+    fun clearToken(context: Context) {
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        sharedPref.edit().remove("token").apply()
         jwtToken = null
     }
+
+    fun setRole(context: Context, role: String?) {
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        sharedPref.edit().putString("user_role", role).apply()
+    }
+
+    fun getRole(context: Context): String? {
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        return sharedPref.getString("user_role", null)
+    }
+
+    fun clearRole(context: Context) {
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        sharedPref.edit().remove("user_role").apply()
+    }
+
 }

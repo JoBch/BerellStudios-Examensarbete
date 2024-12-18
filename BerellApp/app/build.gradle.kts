@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation (libs.java.jwt)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)

@@ -1,5 +1,6 @@
 [versions]
 agp = "8.6.1"
+javaJwt = "4.4.0"
 kotlin = "1.9.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -14,6 +15,7 @@ navigationCompose = "2.8.5"
 runtimeLivedata = "1.7.6"
 
 [libraries]
+java-jwt = { module = "com.auth0:java-jwt", version.ref = "javaJwt" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
