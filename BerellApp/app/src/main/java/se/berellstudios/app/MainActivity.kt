@@ -6,15 +6,21 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -40,6 +46,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import se.berellstudios.app.ui.theme.BerellAppTheme
+import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,29 +73,39 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
+//Navigating between composables
 fun AppNavigation(isLoggedIn: Boolean) {
     val navController = rememberNavController()
-
+    val mainViewModel: MainViewModel = viewModel()
     //Start at "login" or "startpage" based on token presence
-    val startDestination = if (isLoggedIn) "startpage" else "login"
+    val startDestination = if (isLoggedIn) "landing" else "login"
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
-            val mainViewModel: MainViewModel = viewModel()
             LogInScreen(
                 navController = navController,
                 viewModel = mainViewModel
             )
         }
-        composable("startpage") {
-            val mainViewModel: MainViewModel = viewModel()
+        composable("landing") {
             LandingScreen(
                 navController = navController,
                 mainViewModel = mainViewModel
             )
         }
+        composable("messages") {
+            MessagesScreen(
+                navController = navController,
+                mainViewModel = mainViewModel
+            )
+        }
+        composable("tasks") {
+            TasksScreen(
+                navController = navController,
+                mainViewModel = mainViewModel
+            )
+        }
         composable("createuser") {
-            val mainViewModel: MainViewModel = viewModel()
             CreateUserScreen(
                 navController = navController,
                 viewModel = mainViewModel
@@ -98,9 +115,58 @@ fun AppNavigation(isLoggedIn: Boolean) {
 }
 
 //TODO vi behöver olika landingScreen beroende på om det är admin eller user som loggar in.
-//Vi kan få  tag i det med getRole() nu
+//Vi kan få tag i det med getRole() nu
+//Where we land if loggedin=true
 @Composable
 fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
+    val context = LocalContext.current
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        BerellAppTheme {
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    Greeting(name = "JOEL ÄR INLOGGAD")
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            navController.navigate("messages")
+                        }
+                    ) {
+                        Text("Go to Messages")
+                    }
+
+                    Button(
+                        onClick = {
+                            navController.navigate("tasks")
+                        }
+                    ) {
+                        Text("Go to Tasks")
+                    }
+
+                    Button(
+                        onClick = {
+                            //Calling logout so we set loggedIn to false
+                            mainViewModel.logout(context)
+                            navController.navigate("login") //TODO: check how we can clean this up
+                        }
+                    ) {
+                        Text("Logout")
+                    }
+                }
+            }
+        }
+    }
+}
+
+//Controlling and showing the messages section of our code
+@Composable
+fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
     var message by remember { mutableStateOf("") }
     val context = LocalContext.current
 
@@ -112,10 +178,8 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(16.dp)
-                )
-                {
-                    Greeting(name = "JOEL ÄR INLOGGAD") //TODO Ändra till att den tar från token här eller nåt annat vid inlogging
-                    Spacer(modifier = Modifier.height(16.dp))
+                ) {
+                    Text("Messages")
 
                     OutlinedTextField(
                         value = message,
@@ -123,6 +187,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         label = { Text("Enter message to save to DB") },
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Button(
                         onClick = {
                             //Calling createMessage
@@ -134,31 +199,21 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                     }
                     Button(
                         onClick = {
-                            navController.navigate("login")
-                        }
-                    ) {
-                        Text("Tillbaka till start")
-                    }
-                    Button(
-                        onClick = {
-                            //Calling viewMessages
                             mainViewModel.viewMessages()
                         }
                     ) {
-                        Text("Fetch Messages")
+                        Text("Show me the Messages")
                     }
                     Button(
                         onClick = {
-                            //Calling logout so we set loggedIn to false
-                            mainViewModel.logout(context)
-                            navController.navigate("login") //TODO kolla på hur vi kan bli av med denna
+                            //Navigate back to the landing screen
+                            navController.navigateUp()
                         }
                     ) {
-                        Text("Logout user")
+                        Text("Back to Landing")
                     }
-                    //Adding some space
-                    Spacer(modifier = Modifier.height(16.dp))
-                    //Calling messagelist which builds the list from response of "viewMessages"
+
+                    //Displaying messages
                     MessageList(viewModel = mainViewModel)
                 }
             }
@@ -166,6 +221,73 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
     }
 }
 
+//Controlling and showing the tasks section of our code
+@Composable
+fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
+    var task_message by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        BerellAppTheme {
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    Text("Tasks")
+
+                    OutlinedTextField(
+                        value = task_message,
+                        onValueChange = { task_message = it },
+                        label = { Text("Enter task description") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Button(
+                        onClick = {
+                            //Create task
+                            val task = TaskDTO(
+                                id = null, //This one is set in the server
+                                messageContent = task_message,
+                                status = "todo", //Default värde, ska kanske använda en dropdown eller nåt här
+                                deadline = LocalDateTime.now()
+                                    .toString(), //TODO kolla på hur vi ska få rätt på denna
+                                createdTime = "", //This one is set in the server
+                                user_id = null //This one is set in the server
+                            )
+                            mainViewModel.createTask(context, task)
+                        }
+                    ) {
+                        Text("Create Task")
+                    }
+                    Button(
+                        onClick = {
+                            //Navigate back to the landing screen
+                            mainViewModel.viewTasks()
+                        }
+                    ) {
+                        Text("Show me the tasks")
+                    }
+                    Button(
+                        onClick = {
+                            //Navigate back to the landing screen
+                            navController.navigateUp()
+                        }
+                    ) {
+                        Text("Back to Landing")
+                    }
+
+                    //Displaying tasks
+                    TaskList(viewModel = mainViewModel)
+                }
+            }
+        }
+    }
+}
+
+//Landing page when loggedin=false
 @Composable
 fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
@@ -179,7 +301,7 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
     //If the user is logged in, navigate to the start page
     if (loggedIn) {
         LaunchedEffect(Unit) {
-            navController.navigate("startpage") {
+            navController.navigate("landing") {
                 popUpTo("login") { inclusive = true }
             }
         }
@@ -283,7 +405,7 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
     }
 }
 
-
+//Creating user, navigate here from startpage
 @Composable
 fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
@@ -300,21 +422,18 @@ fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
                 ) {
                     Greeting(name = "NY ANVÄNDARE SOM VILL SKAPA KONTO")
                     Spacer(modifier = Modifier.height(16.dp))
-                    // Textfält för email
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("your email please") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    // Textfält för användarnamn
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
                         label = { Text("feed me a GOOD username") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    // Textfält för lösenord
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -325,7 +444,6 @@ fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
                         onClick = {
                             //Calling register to register a user.
                             viewModel.register(email, username, password)
-                            //TODO detta borde lösas med variabler från MVM inte navcontroller här
                             navController.navigate("login")
                         }
                     ) {
@@ -366,6 +484,83 @@ fun MessageList(viewModel: MainViewModel) {
         }
     }
 }
+
+//Listan är överst
+@Composable
+fun TaskList(viewModel: MainViewModel) {
+    val tasks by viewModel.tasks.collectAsState()
+
+    //Group tasks by their status
+    val groupedTasks = tasks.groupBy { it.status }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Tasks",
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        //LazyRow to display the statuses in separate columns
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            //Iterate over the statuses and create a column for each status
+            items(groupedTasks.keys.toList()) { status ->
+                if (groupedTasks[status].isNullOrEmpty()) {
+                    Text(text = "No tasks for $status")
+                } else {
+                    TaskColumn(
+                        status = status,
+                        tasks = groupedTasks[status] ?: emptyList()
+                    )
+                }
+            }
+        }
+    }
+}
+
+//Columnerna är mitten
+@Composable
+fun TaskColumn(status: String, tasks: List<TaskDTO>) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(150.dp)
+            .padding(8.dp)
+    ) {
+        Text(
+            text = status.replaceFirstChar { it.uppercaseChar() },
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        LazyColumn(
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            items(tasks) { task ->
+                TaskItem(task)
+            }
+        }
+    }
+}
+
+//Itemsen är lägst
+@Composable
+fun TaskItem(task: TaskDTO) {
+    Text(
+        text = task.messageContent,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .background(Color.LightGray)
+            .padding(8.dp)
+            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+    )
+}
+
 
 //TODO hejdå till detta?
 @Composable

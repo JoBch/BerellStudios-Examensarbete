@@ -19,6 +19,9 @@ class MainViewModel : ViewModel() {
     private val _messages = MutableStateFlow<List<String>>(emptyList())
     val messages: StateFlow<List<String>> = _messages
 
+    private val _tasks = MutableStateFlow<List<TaskDTO>>(emptyList())
+    val tasks: StateFlow<List<TaskDTO>> = _tasks
+
     private val _errorMessage = MutableStateFlow<String>("")
     val errorMessage: StateFlow<String> get() = _errorMessage
 
@@ -87,7 +90,30 @@ class MainViewModel : ViewModel() {
                 //Setting the StateFlow so we can send the data to the activity
                 _messages.value = response
             } catch (e: Exception) {
-                println("Failed to fetch time capsules: ${e.message}")
+                println("Failed to fetch messages: ${e.message}")
+            }
+        }
+    }
+
+    fun createTask(context: Context, task: TaskDTO) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.createTask(task)
+                Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                println("Failed to create task: ${e.message}")
+            }
+        }
+    }
+
+    fun viewTasks() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.viewTasks()
+                _tasks.value = response
+                println("Tasks Retrieved${_tasks.value}")
+            } catch (e: Exception) {
+                println("Failed to fetch tasks: ${e.message}")
             }
         }
     }

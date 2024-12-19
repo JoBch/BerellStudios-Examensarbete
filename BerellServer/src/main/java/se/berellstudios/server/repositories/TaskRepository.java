@@ -5,7 +5,5 @@ import se.berellstudios.server.entities.TaskEntity;
 
 public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
-    TaskEntity findTaskById(Long taskId);
-    TaskEntity save(TaskEntity task);
-
+    TaskEntity findTaskById(int taskId);
 }

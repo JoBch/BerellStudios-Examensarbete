@@ -14,6 +14,16 @@ data class PingResponse(val message: String)
 data class LoginResponse(val token: String)
 data class MessageResponse(val message: String)
 
+//Building a DTO so we can extract or send the data we need from it.
+data class TaskDTO(
+    val id: Int?,
+    val messageContent: String,
+    val status: String,
+    val deadline: String,
+    val createdTime: String,
+    val user_id: Int?
+)
+
 interface ApiService {
 
 
@@ -30,6 +40,14 @@ interface ApiService {
 
     @GET("/messages/view")
     suspend fun viewMessages(): List<String>
+
+    @POST("/tasks/create")
+    suspend fun createTask(
+        @Body request: TaskDTO,
+    ): MessageResponse
+
+    @GET("/tasks/view")
+    suspend fun viewTasks(): List<TaskDTO>
 
     @GET("/users/ping")
     fun ping(): Call<PingResponse>

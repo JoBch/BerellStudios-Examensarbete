@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 @Entity(name = "tasks")
 @Table(name = "tasks")
@@ -19,16 +18,19 @@ public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "task_id")
-    private Long id;
+    private int id;
 
     @Column(name = "task_message")
     private String messageContent;
 
+    @Column(name = "deadline")
+    private LocalDateTime deadline;
+
     @Column(name = "status")
-    private String status;
+    private String status = "todo";
 
     @Column(name = "created_time")
-    private Date createdTime;
+    private LocalDateTime createdTime = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
