@@ -1,12 +1,12 @@
 package se.berellstudios.server.services;
 
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import se.berellstudios.server.dtos.UserDTO;
 import se.berellstudios.server.entities.UserEntity;
 import se.berellstudios.server.repositories.UserRepository;
 import se.berellstudios.server.security.Hashing;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {

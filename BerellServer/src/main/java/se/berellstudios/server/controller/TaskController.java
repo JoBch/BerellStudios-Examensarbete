@@ -1,10 +1,10 @@
 package se.berellstudios.server.controller;
 
+import exceptions.JwtExceptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.berellstudios.server.dtos.TaskDTO;
-import se.berellstudios.server.entities.MessageEntity;
 import se.berellstudios.server.entities.TaskEntity;
 import se.berellstudios.server.entities.UserEntity;
 import se.berellstudios.server.repositories.TaskRepository;
@@ -12,9 +12,12 @@ import se.berellstudios.server.repositories.UserRepository;
 import se.berellstudios.server.utils.AESUtil;
 import se.berellstudios.server.utils.JWTUtil;
 
+import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,6 +38,7 @@ public class TaskController {
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, String>> createTasks(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskDTO) {
+
         Map<String, String> response = new HashMap<>();
 
         try {
@@ -42,7 +46,8 @@ public class TaskController {
             String username = jwtUtil.extractUsername(jwtToken);
             UserEntity user = userRepository.findByEmail(username);
 
-            jwtUtil.jwtCheck(token, user, response);
+            //Checking the token
+            jwtUtil.jwtCheck(token, user);
 
             String encryptedMessage = aesUtil.encryptMessage(taskDTO.getMessageContent());
 
@@ -50,14 +55,18 @@ public class TaskController {
             TaskEntity taskEntity = new TaskEntity();
             taskEntity.setMessageContent(encryptedMessage);
             taskEntity.setUser(user);
+            taskEntity.setCreatedTime(LocalDateTime.now());
 
             taskRepository.save(taskEntity);
 
             response.put("message", "Task Created!");
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("message", e.getMessage());
+        } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
+                 JwtExceptions.UserNotFoundException | ParseException ex) {
+            response.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -68,15 +77,19 @@ public class TaskController {
         if (!jwtUtil.validateToken(jwtToken)) {
             throw new Exception("Invalid token");
         }
-        //TODO kolla om man är admin=läs in allt, user=läs in det som ligger på user_id
-        String userEmail = jwtUtil.extractUsername(jwtToken);
-        UserEntity user = userRepository.findByEmail(userEmail);
-
-        //Fetch all tasks for the user
-        List<TaskEntity> tasks = user.getTasks();
+        //Checking for role, admins should see all tasks, users only the ones assigned to them.
+        List<TaskEntity> taskEntities;
+        if (Objects.equals(jwtUtil.extractRole(jwtToken), "user")) {
+            String userEmail = jwtUtil.extractUsername(jwtToken);
+            UserEntity user = userRepository.findByEmail(userEmail);
+            //Fetch all tasks for the user
+            taskEntities = user.getTasks();
+        } else {//Fetch all tasks
+            taskEntities = taskRepository.findAll();
+        }
 
         //Map TaskEntity to TaskDTO
-        return tasks.stream()
+        return taskEntities.stream()
                 .map(task -> {
                     TaskDTO taskDTO = new TaskDTO();
                     taskDTO.setId(task.getId());

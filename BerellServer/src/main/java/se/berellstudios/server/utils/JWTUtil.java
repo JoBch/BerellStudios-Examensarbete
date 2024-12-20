@@ -4,12 +4,12 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
-import org.springframework.http.ResponseEntity;
+import exceptions.JwtExceptions;
 import org.springframework.stereotype.Component;
 import se.berellstudios.server.entities.UserEntity;
 
+import java.text.ParseException;
 import java.util.Date;
-import java.util.Map;
 
 @Component
 public class JWTUtil {
@@ -41,13 +41,15 @@ public class JWTUtil {
 
 
     //Validate and parse the JWT token
-    public boolean validateToken(String token) throws JOSEException, java.text.ParseException {
+    public boolean validateToken(String token) {
         final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
-
-        JWSObject jwsObject = JWSObject.parse(token);
-
-        JWSVerifier verifier = new MACVerifier(SECRET_KEY.getBytes());
-        return jwsObject.verify(verifier);
+        try {
+            JWSObject jwsObject = JWSObject.parse(token);
+            JWSVerifier verifier = new MACVerifier(SECRET_KEY.getBytes());
+            return jwsObject.verify(verifier);
+        } catch (ParseException | JOSEException e) {
+            throw new JwtExceptions.InvalidTokenException("Error parsing the token");
+        }
     }
 
 
@@ -73,32 +75,28 @@ public class JWTUtil {
         return expiration.before(new Date());
     }
 
-    //Checking the token in controllers
-    public ResponseEntity<Map<String, String>> jwtCheck(String token, UserEntity user, Map<String, String> response) throws Exception {
-
-        //Check if the token is present
+    //Checking the JwtToken against several statements.
+    //TODO funkar denna verkligen som planerat?
+    public void jwtCheck(String token, UserEntity user) throws JwtExceptions.InvalidTokenException, JwtExceptions.ExpiredTokenException,
+            JwtExceptions.UserNotFoundException, ParseException, JOSEException {
         if (token == null || !token.startsWith("Bearer ")) {
-            response.put("message", "No token provided");
-            return ResponseEntity.badRequest().body(response);
+            throw new JwtExceptions.InvalidTokenException("No token provided or invalid format");
         }
 
-        //Extract the token from the header and validate it
         String jwtToken = token.substring(7);
+
         if (!validateToken(jwtToken)) {
-            response.put("message", "Invalid token");
-            return ResponseEntity.badRequest().body(response);
+            throw new JwtExceptions.InvalidTokenException("Invalid token");
         }
 
-        //Check if the token has expired
         if (isTokenExpired(jwtToken)) {
-            response.put("message", "Token has expired");
-            return ResponseEntity.badRequest().body(response);
+            throw new JwtExceptions.ExpiredTokenException("Token has expired");
         }
 
         if (user == null) {
-            response.put("message", "User not found");
-            return ResponseEntity.badRequest().body(response);
+            throw new JwtExceptions.UserNotFoundException("User not found");
         }
-        return null;
     }
+
+
 }

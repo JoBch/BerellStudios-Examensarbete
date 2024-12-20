@@ -1,15 +1,15 @@
 package se.berellstudios.server.controller;
 
+import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.berellstudios.server.entities.UserEntity;
 import se.berellstudios.server.repositories.UserRepository;
 import se.berellstudios.server.services.UserService;
 import se.berellstudios.server.utils.JWTUtil;
-import com.nimbusds.jose.JOSEException;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 import java.util.Map;

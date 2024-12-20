@@ -1,6 +1,9 @@
 package se.berellstudios.server.controller;
 
+import exceptions.JwtExceptions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import se.berellstudios.server.dtos.MessageDTO;
 import se.berellstudios.server.entities.MessageEntity;
 import se.berellstudios.server.entities.UserEntity;
@@ -8,9 +11,8 @@ import se.berellstudios.server.repositories.MessageRepository;
 import se.berellstudios.server.repositories.UserRepository;
 import se.berellstudios.server.utils.AESUtil;
 import se.berellstudios.server.utils.JWTUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -33,27 +35,36 @@ public class MessageController {
     private AESUtil aesUtil;
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createMessage(@RequestHeader("Authorization") String token, @RequestBody MessageDTO messageDTO)
-            throws Exception {
-        String jwtToken = token.substring(7);
-        String username = jwtUtil.extractUsername(jwtToken);
-        UserEntity user = userRepository.findByEmail(username);
+    public ResponseEntity<Map<String, String>> createMessage(@RequestHeader("Authorization") String token, @RequestBody MessageDTO messageDTO) {
         Map<String, String> response = new HashMap<>();
 
-        jwtUtil.jwtCheck(token, user, response);
+        try {
+            String jwtToken = token.substring(7);
+            String username = jwtUtil.extractUsername(jwtToken);
+            UserEntity user = userRepository.findByEmail(username);
 
-        String encryptedMessage = aesUtil.encryptMessage(messageDTO.getMessage());
+            //Checking the token
+            jwtUtil.jwtCheck(token, user);
+            //Encrypting message before setting it in the DTO
+            String encryptedMessage = aesUtil.encryptMessage(messageDTO.getMessage());
 
-        //Create and save the message entity
-        MessageEntity messageEntity = new MessageEntity();
-        messageEntity.setMessageContent(encryptedMessage);
-        messageEntity.setUser(user);
-        messageEntity.setCreatedTime(LocalDateTime.now());
+            //Create and save the message entity
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setMessageContent(encryptedMessage);
+            messageEntity.setUser(user);
+            messageEntity.setCreatedTime(LocalDateTime.now());
 
-        messageRepository.save(messageEntity);
+            messageRepository.save(messageEntity);
 
-        response.put("message", "Message Created!");
-        return ResponseEntity.ok(response);
+            response.put("message", "Message Created!");
+            return ResponseEntity.ok(response);
+        } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
+                 JwtExceptions.UserNotFoundException | ParseException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -64,14 +75,11 @@ public class MessageController {
             return List.of("Invalid token");
         }
 
-        String userEmail = jwtUtil.extractUsername(jwtToken);
-        UserEntity user = userRepository.findByEmail(userEmail);
-
-        //Fetch all time capsules for the user
-        List<MessageEntity> messages = user.getMessages();
+        List<MessageEntity> messageEntities;
+        messageEntities = messageRepository.findAll();
 
         //Decrypt each message before returning
-        return messages.stream()
+        return messageEntities.stream()
                 .map(msg -> {
                     try {
                         return aesUtil.decryptMessage(msg.getMessageContent());
