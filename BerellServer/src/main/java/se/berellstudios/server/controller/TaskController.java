@@ -34,65 +34,48 @@ public class TaskController {
     private AESUtil aesUtil;
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createTasks(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskDTO)
-            throws Exception {
-
-        //TODO göra detta till en egen funktion
+    public ResponseEntity<Map<String, String>> createTasks(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskDTO) {
         Map<String, String> response = new HashMap<>();
 
-        //Check if the token is present
-        if (token == null || !token.startsWith("Bearer ")) {
-            response.put("message", "No token provided");
+        try {
+            String jwtToken = token.substring(7);
+            String username = jwtUtil.extractUsername(jwtToken);
+            UserEntity user = userRepository.findByEmail(username);
+
+            jwtUtil.jwtCheck(token, user, response);
+
+            String encryptedMessage = aesUtil.encryptMessage(taskDTO.getMessageContent());
+
+            //Create and save the task entity
+            TaskEntity taskEntity = new TaskEntity();
+            taskEntity.setMessageContent(encryptedMessage);
+            taskEntity.setUser(user);
+
+            taskRepository.save(taskEntity);
+
+            response.put("message", "Task Created!");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-
-        //Extract the token from the header and validate it
-        String jwtToken = token.substring(7);
-        if (!jwtUtil.validateToken(jwtToken)) {
-            response.put("message", "Invalid token");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        //Check if the token has expired
-        if (jwtUtil.isTokenExpired(jwtToken)) {
-            response.put("message", "Token has expired");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        String username = jwtUtil.extractUsername(jwtToken);
-        UserEntity user = userRepository.findByEmail(username);
-        if (user == null) {
-            response.put("message", "User not found");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        String encryptedMessage = aesUtil.encryptMessage(taskDTO.getMessageContent());
-
-        //Create and save the task entity
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setMessageContent(encryptedMessage);
-        taskEntity.setUser(user);
-
-        taskRepository.save(taskEntity);
-
-        response.put("message", "Task Created!");
-        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/view")
     public List<TaskDTO> viewTasks(@RequestHeader("Authorization") String token) throws Exception {
         String jwtToken = token.substring(7);
         if (!jwtUtil.validateToken(jwtToken)) {
-            //throw new UnauthorizedException("Invalid token");
+            throw new Exception("Invalid token");
         }
-
+        //TODO kolla om man är admin=läs in allt, user=läs in det som ligger på user_id
         String userEmail = jwtUtil.extractUsername(jwtToken);
         UserEntity user = userRepository.findByEmail(userEmail);
 
-        // Fetch all tasks for the user
+        //Fetch all tasks for the user
         List<TaskEntity> tasks = user.getTasks();
 
-        // Map TaskEntity to TaskDTO
+        //Map TaskEntity to TaskDTO
         return tasks.stream()
                 .map(task -> {
                     TaskDTO taskDTO = new TaskDTO();
@@ -109,7 +92,6 @@ public class TaskController {
                     return taskDTO;
                 }).collect(Collectors.toList());
     }
-
 
 }
 
