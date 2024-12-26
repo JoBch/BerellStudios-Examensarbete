@@ -32,6 +32,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
+                    //HÄR VILL JAG FÅ IN NAMN och ROLE PÅ DEN INLOGGADE
                     Text("Welcome, you're logged in!")
                     Spacer(modifier = Modifier.height(16.dp))
 

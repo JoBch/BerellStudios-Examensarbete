@@ -2,7 +2,9 @@ package se.berellstudios.app.screens
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -18,13 +20,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import se.berellstudios.app.APICalls
-import se.berellstudios.app.Greeting
+import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.MainViewModel
+import se.berellstudios.app.ui.theme.Purple40
 
 
 //Landing page when loggedin=false
@@ -56,7 +62,7 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    Greeting(name = "Log In")
+                    Greeting(name = "New user")
                     Spacer(modifier = Modifier.height(16.dp))
 
                     //Username input
@@ -131,14 +137,35 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     //Create user button
-                    Button(
-                        onClick = {
-                            navController.navigate("createuser")
-                        },
-                        modifier = Modifier.fillMaxWidth()
+//                    Button(
+//                        onClick = {
+//                            navController.navigate("createuser")
+//                        },
+//                        modifier = Modifier.fillMaxWidth()
+//                    ) {
+//                        Text("Create user")
+//                    }
+                    Box(
+                        modifier = Modifier.fillMaxSize() // Box fyller hela skärmen
                     ) {
-                        Text("Create user")
+                        // Andra UI-element här...
+
+                        // Klickbar text som är placerad längst ner
+                        Text(
+                            text = "Click here to create a new account",
+                            modifier = Modifier
+                                .clickable {
+                                    navController.navigate("createuser")
+                                }
+                                .align(Alignment.BottomCenter),  // Placerar texten längst ner
+                            style = TextStyle(
+                                fontSize = 15.sp,
+                                color = Purple40,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
                     }
+
                 }
             }
         }

@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import se.berellstudios.app.Greeting
+import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.ui.theme.BerellAppTheme
 

@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
-import se.berellstudios.app.MessageList
+import se.berellstudios.app.components.MessageList
 import se.berellstudios.app.ui.theme.BerellAppTheme
 
 //Controlling and showing the messages section of our code
