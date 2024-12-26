@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.TaskDTO
-import se.berellstudios.app.components.TaskList
+import se.berellstudios.app.components.*
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import java.time.LocalDateTime
 
