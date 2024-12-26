@@ -5,12 +5,16 @@ se\berellstudios\server\repositories\TaskRepository.class
 se\berellstudios\server\dtos\UserDTO.class
 se\berellstudios\server\controller\UserController.class
 se\berellstudios\server\controller\MessageController.class
+exceptions\JwtExceptions$InvalidTokenException.class
+exceptions\JwtExceptions.class
 se\berellstudios\server\entities\MessageEntity.class
 se\berellstudios\server\utils\JWTUtil.class
+exceptions\JwtExceptions$UserNotFoundException.class
 se\berellstudios\server\security\AccessConfig.class
 se\berellstudios\server\security\Hashing.class
 se\berellstudios\server\ServerApplication.class
 se\berellstudios\server\utils\AESUtil.class
+exceptions\JwtExceptions$ExpiredTokenException.class
 se\berellstudios\server\controller\TaskController.class
 se\berellstudios\server\dtos\MessageDTO.class
 se\berellstudios\server\entities\UserEntity.class

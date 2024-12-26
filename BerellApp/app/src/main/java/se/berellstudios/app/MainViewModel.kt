@@ -98,6 +98,7 @@ class MainViewModel : ViewModel() {
     fun createTask(context: Context, task: TaskDTO) {
         viewModelScope.launch {
             try {
+                println("Deadline: " + task)
                 val response = RetrofitClient.apiService.createTask(task)
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {

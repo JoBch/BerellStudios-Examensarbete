@@ -28,7 +28,7 @@ public class TaskEntity {
     private LocalDateTime deadline;
 
     @Column(name = "status")
-    private String status = "todo";
+    private String status;
 
     @Column(name = "created_time")
     private LocalDateTime createdTime = LocalDateTime.now();

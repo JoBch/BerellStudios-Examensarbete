@@ -21,12 +21,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
+import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.MessageList
 import se.berellstudios.app.ui.theme.BerellAppTheme
 
 //Controlling and showing the messages section of our code
 @Composable
 fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
+    mainViewModel.viewMessages()
     var message by remember { mutableStateOf("") }
     val context = LocalContext.current
 
@@ -40,29 +42,23 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(16.dp)
                 ) {
                     Text("Messages")
+                    if (RetrofitClient.getRole(context) == "admin") {
+                        OutlinedTextField(
+                            value = message,
+                            onValueChange = { message = it },
+                            label = { Text("Enter message to save to DB") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                    OutlinedTextField(
-                        value = message,
-                        onValueChange = { message = it },
-                        label = { Text("Enter message to save to DB") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Button(
-                        onClick = {
-                            //Calling createMessage
-                            mainViewModel.createMessage(context, message)
-                            Log.i("Andreas", "CreateMessage: $message")
+                        Button(
+                            onClick = {
+                                //Calling createMessage
+                                mainViewModel.createMessage(context, message)
+                                Log.i("Andreas", "CreateMessage: $message")
+                            }
+                        ) {
+                            Text("Create Message")
                         }
-                    ) {
-                        Text("Create Message")
-                    }
-                    Button(
-                        onClick = {
-                            mainViewModel.viewMessages()
-                        }
-                    ) {
-                        Text("Show me the Messages")
                     }
                     Button(
                         onClick = {

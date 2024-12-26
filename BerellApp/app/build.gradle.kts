@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation (libs.material3)
     implementation (libs.java.jwt)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

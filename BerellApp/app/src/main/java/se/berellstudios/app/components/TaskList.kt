@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
-import se.berellstudios.app.components.TaskColumn
 
 //Listan är överst
 @Composable
@@ -35,6 +34,7 @@ fun TaskList(viewModel: MainViewModel) {
         )
 
         //LazyRow to display the statuses in separate columns
+        //TODO kanske ta bort row här så de ligger under varandra istället?
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)

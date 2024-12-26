@@ -19,7 +19,7 @@ data class TaskDTO(
     val id: Int?,
     val messageContent: String,
     val status: String,
-    val deadline: String,
+    val deadline: String?,
     val createdTime: String,
     val user_id: Int?
 )

@@ -55,6 +55,8 @@ public class TaskController {
             TaskEntity taskEntity = new TaskEntity();
             taskEntity.setMessageContent(encryptedMessage);
             taskEntity.setUser(user);
+            taskEntity.setStatus(taskDTO.getStatus());
+            taskEntity.setDeadline(taskDTO.getDeadline());
             taskEntity.setCreatedTime(LocalDateTime.now());
 
             taskRepository.save(taskEntity);

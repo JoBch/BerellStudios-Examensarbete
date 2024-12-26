@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.TaskDTO
-import se.berellstudios.app.components.TaskItem
 
 //Columnerna är mitten
 @Composable
@@ -27,9 +26,7 @@ fun TaskColumn(status: String, tasks: List<TaskDTO>) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxHeight()
-        ) {
+        LazyColumn {
             items(tasks) { task ->
                 TaskItem(task)
             }
