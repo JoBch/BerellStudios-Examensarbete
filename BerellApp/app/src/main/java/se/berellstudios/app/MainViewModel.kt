@@ -77,7 +77,8 @@ class MainViewModel : ViewModel() {
                 val response = RetrofitClient.apiService.createMessage(messageRequest)
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                println("Failed to create message: ${e.message}")
+                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                println("Failed to fetch messages: ${e.message}")
             }
         }
     }

@@ -40,6 +40,9 @@ public class MessageController {
 
         try {
             String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                throw new Exception("Invalid token");
+            }
             String username = jwtUtil.extractUsername(jwtToken);
             UserEntity user = userRepository.findByEmail(username);
 

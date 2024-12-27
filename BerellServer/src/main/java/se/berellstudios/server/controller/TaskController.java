@@ -2,6 +2,7 @@ package se.berellstudios.server.controller;
 
 import exceptions.JwtExceptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.berellstudios.server.dtos.TaskDTO;
@@ -43,15 +44,17 @@ public class TaskController {
 
         try {
             String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                throw new Exception("Invalid token");
+            }
             String username = jwtUtil.extractUsername(jwtToken);
             UserEntity user = userRepository.findByEmail(username);
 
-            //Checking the token
+            // Checking the token
             jwtUtil.jwtCheck(token, user);
-
             String encryptedMessage = aesUtil.encryptMessage(taskDTO.getMessageContent());
 
-            //Create and save the task entity
+            // Create and save the task entity
             TaskEntity taskEntity = new TaskEntity();
             taskEntity.setMessageContent(encryptedMessage);
             taskEntity.setUser(user);
@@ -68,44 +71,62 @@ public class TaskController {
             response.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
 
+
     @GetMapping("/view")
-    public List<TaskDTO> viewTasks(@RequestHeader("Authorization") String token) throws Exception {
-        String jwtToken = token.substring(7);
-        if (!jwtUtil.validateToken(jwtToken)) {
-            throw new Exception("Invalid token");
-        }
-        //Checking for role, admins should see all tasks, users only the ones assigned to them.
-        List<TaskEntity> taskEntities;
-        if (Objects.equals(jwtUtil.extractRole(jwtToken), "user")) {
+    public ResponseEntity<?> viewTasks(@RequestHeader("Authorization") String token) {
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                throw new Exception("Invalid token");
+            }
+
             String userEmail = jwtUtil.extractUsername(jwtToken);
             UserEntity user = userRepository.findByEmail(userEmail);
-            //Fetch all tasks for the user
-            taskEntities = user.getTasks();
-        } else {//Fetch all tasks
-            taskEntities = taskRepository.findAll();
-        }
+            jwtUtil.jwtCheck(token, user);
 
-        //Map TaskEntity to TaskDTO
-        return taskEntities.stream()
-                .map(task -> {
-                    TaskDTO taskDTO = new TaskDTO();
-                    taskDTO.setId(task.getId());
-                    try {
-                        taskDTO.setMessageContent(aesUtil.decryptMessage(task.getMessageContent()));  // Decrypt message
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                    taskDTO.setStatus(task.getStatus());
-                    taskDTO.setDeadline(task.getDeadline());
-                    taskDTO.setCreatedTime(task.getCreatedTime());
-                    taskDTO.setUser_id(task.getUser().getId());
-                    return taskDTO;
-                }).collect(Collectors.toList());
+            // Determine tasks based on role
+            List<TaskEntity> taskEntities;
+            if (Objects.equals(jwtUtil.extractRole(jwtToken), "user")) {
+                taskEntities = user.getTasks(); //User-specific tasks
+            } else {
+                taskEntities = taskRepository.findAll(); //Admin sees all tasks
+            }
+
+            //Map TaskEntity to TaskDTO
+            List<TaskDTO> taskDTOs = taskEntities.stream()
+                    .map(task -> {
+                        TaskDTO taskDTO = new TaskDTO();
+                        taskDTO.setId(task.getId());
+                        try {
+                            taskDTO.setMessageContent(aesUtil.decryptMessage(task.getMessageContent())); //Decrypt message
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        taskDTO.setStatus(task.getStatus());
+                        taskDTO.setDeadline(task.getDeadline());
+                        taskDTO.setCreatedTime(task.getCreatedTime());
+                        taskDTO.setUser_id(task.getUser().getId());
+                        return taskDTO;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(taskDTOs);
+        } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
+                 JwtExceptions.UserNotFoundException | ParseException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
 }
