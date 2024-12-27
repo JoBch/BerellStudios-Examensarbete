@@ -1,5 +1,6 @@
 package se.berellstudios.app
 
+import okhttp3.internal.concurrent.Task
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -21,7 +22,16 @@ data class TaskDTO(
     val status: String,
     val deadline: String?,
     val createdTime: String,
+    val priority: Int?,
     val user_id: Int?
+)
+
+data class MessageDTO(
+    val id: Int?,
+    val message: String,
+    val createdBy: Int?,
+    val createdTime: String,
+    val deadline: String?
 )
 
 interface ApiService {
@@ -35,7 +45,7 @@ interface ApiService {
 
     @POST("/messages/create")
     suspend fun createMessage(
-        @Body request: MessageRequest,
+        @Body request: MessageDTO,
     ): MessageResponse
 
     @GET("/messages/view")
@@ -45,6 +55,9 @@ interface ApiService {
     suspend fun createTask(
         @Body request: TaskDTO,
     ): MessageResponse
+
+    @GET("/tasks/view/startertasks")
+    suspend fun viewStarterTasks(): List<TaskDTO>
 
     @GET("/tasks/view")
     suspend fun viewTasks(): List<TaskDTO>

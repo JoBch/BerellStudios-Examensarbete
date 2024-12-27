@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,12 +46,15 @@ enum class TaskStatus(val dbValue: String, val displayName: String) {
 @Composable
 fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
     mainViewModel.viewTasks()
+    val priority = intArrayOf(1, 2, 3)
     val context = LocalContext.current
     var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var deadline by remember { mutableStateOf<String?>(null) }
     var taskMessage by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
+    var statusExpanded by remember { mutableStateOf(false) }
+    var priorityExpanded by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(TaskStatus.TODO) }
+    var selectedPrio by remember { mutableIntStateOf(3) }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
@@ -74,25 +78,53 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Button(
-                            onClick = { expanded = !expanded },
+                            onClick = { statusExpanded = !statusExpanded },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Status: ${selectedStatus.displayName}")
                         }
                         //TODO se till så att denna hamnar där vi vill
                         DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
+                            expanded = statusExpanded,
+                            onDismissRequest = { statusExpanded = false }
                         ) {
                             TaskStatus.entries.forEach { status ->
                                 DropdownMenuItem(
                                     text = { Text(status.displayName) },
                                     onClick = {
                                         selectedStatus = status
-                                        expanded = false
+                                        statusExpanded = false
                                     },
                                     leadingIcon = {
                                         if (status == selectedStatus) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = null
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        Button(
+                            onClick = { priorityExpanded = !priorityExpanded },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Prio: $selectedPrio")
+                        }
+                        DropdownMenu(
+                            expanded = priorityExpanded,
+                            onDismissRequest = { priorityExpanded = false }
+                        ) {
+                            priority.forEach { prio ->
+                                DropdownMenuItem(
+                                    text = { Text("" + prio) },
+                                    onClick = {
+                                        selectedPrio = prio
+                                        priorityExpanded = false
+                                    },
+                                    leadingIcon = {
+                                        if (prio == selectedPrio) {
                                             Icon(
                                                 imageVector = Icons.Default.Check,
                                                 contentDescription = null
@@ -129,17 +161,18 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                         Button(
                             onClick = {
                                 //Create task
-                                if (deadline != null) {
                                     val task = TaskDTO(
                                         id = null, //Set by the server
                                         messageContent = taskMessage,
                                         status = selectedStatus.dbValue,
                                         deadline = deadline,
+                                        priority = selectedPrio,
                                         createdTime = "", //Set by the server
                                         user_id = null //Set by the server
                                     )
                                     mainViewModel.createTask(context, task)
-                                }
+                                    //TODO denna verkar ej funka här, hinner kanske inte med
+                                    mainViewModel.viewTasks()
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {

@@ -70,11 +70,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun createMessage(context: Context, message: String) {
+    fun createMessage(context: Context, message: MessageDTO) {
         viewModelScope.launch {
             try {
-                val messageRequest = MessageRequest(message)
-                val response = RetrofitClient.apiService.createMessage(messageRequest)
+                val response = RetrofitClient.apiService.createMessage(message)
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
@@ -104,6 +103,18 @@ class MainViewModel : ViewModel() {
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 println("Failed to create task: ${e.message}")
+            }
+        }
+    }
+
+    fun viewStarterTasks() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.viewStarterTasks()
+                _tasks.value = response
+                println("Starter Tasks Retrieved${_tasks.value}")
+            } catch (e: Exception) {
+                println("Failed to fetch tasks: ${e.message}")
             }
         }
     }

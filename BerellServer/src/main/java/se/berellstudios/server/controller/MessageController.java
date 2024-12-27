@@ -35,7 +35,7 @@ public class MessageController {
     private AESUtil aesUtil;
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createMessage(@RequestHeader("Authorization") String token, @RequestBody MessageDTO messageDTO) {
+    public ResponseEntity<?> createMessage(@RequestHeader("Authorization") String token, @RequestBody MessageDTO messageDTO) {
         Map<String, String> response = new HashMap<>();
 
         try {
@@ -55,6 +55,7 @@ public class MessageController {
             MessageEntity messageEntity = new MessageEntity();
             messageEntity.setMessageContent(encryptedMessage);
             messageEntity.setUser(user);
+            messageEntity.setDeadline(messageDTO.getDeadline());
             messageEntity.setCreatedTime(LocalDateTime.now());
 
             messageRepository.save(messageEntity);
@@ -79,7 +80,7 @@ public class MessageController {
         }
 
         List<MessageEntity> messageEntities;
-        messageEntities = messageRepository.findAll();
+        messageEntities = messageRepository.findAllByOrderByDeadlineAsc();
 
         //Decrypt each message before returning
         return messageEntities.stream()

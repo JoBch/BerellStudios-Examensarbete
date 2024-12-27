@@ -13,14 +13,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.MainViewModel
+import se.berellstudios.app.RetrofitClient
+import se.berellstudios.app.components.TaskList
 
 
 //TODO vi behöver olika landingScreen beroende på om det är admin eller user som loggar in.
-//Vi kan få tag i det med getRole() nu
 //Where we land if loggedin=true
-
 @Composable
 fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
+    mainViewModel.viewStarterTasks()
     val context: Context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -33,7 +34,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(16.dp)
                 ) {
                     //HÄR VILL JAG FÅ IN NAMN och ROLE PÅ DEN INLOGGADE
-                    Text("Welcome, you're logged in!")
+                    Text("Welcome, you're logged in! Role: " + RetrofitClient.getRole(context))
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Button(onClick = { navController.navigate("messages") }) {
@@ -50,6 +51,8 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                     }) {
                         Text("Logout")
                     }
+                    //Viewing the three tasks with the nearest deadline
+                    TaskList(viewModel = mainViewModel)
                 }
             }
         }

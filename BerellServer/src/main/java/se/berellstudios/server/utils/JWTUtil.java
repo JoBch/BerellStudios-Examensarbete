@@ -13,8 +13,8 @@ import java.util.Date;
 
 @Component
 public class JWTUtil {
-
-    public static String generateToken(String username, String role) throws JOSEException {
+    
+    public static String generateToken(String email, String role) throws JOSEException {
         final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
         final long TOKEN_VALIDITY = 100 * 60 * 60 * 10;
 
@@ -23,7 +23,7 @@ public class JWTUtil {
 
         //Add role to the claims
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(email)
                 .claim("role", role) //Include the user's role
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() + TOKEN_VALIDITY))

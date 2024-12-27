@@ -38,4 +38,8 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskEntity> tasks = new ArrayList<>();
+
+    public List<TaskEntity> getTasksOrderByDeadlineAsc() {
+        return tasks;
+    }
 }
