@@ -61,6 +61,7 @@ public class TaskController {
             taskEntity.setStatus(taskDTO.getStatus());
             taskEntity.setDeadline(taskDTO.getDeadline());
             taskEntity.setCreatedTime(LocalDateTime.now());
+            taskEntity.setPriority(taskDTO.getPriority());
 
             taskRepository.save(taskEntity);
 
@@ -95,9 +96,61 @@ public class TaskController {
             // Determine tasks based on role
             List<TaskEntity> taskEntities;
             if (Objects.equals(jwtUtil.extractRole(jwtToken), "user")) {
-                taskEntities = user.getTasks(); //User-specific tasks
+                taskEntities = taskRepository.findAllByUserIdOrderByDeadlineAsc(user.getId()); //User-specific tasks
             } else {
-                taskEntities = taskRepository.findAll(); //Admin sees all tasks
+                taskEntities = taskRepository.findAllByOrderByDeadlineAsc(); //Admin sees all tasks
+            }
+
+            //Map TaskEntity to TaskDTO
+            List<TaskDTO> taskDTOs = taskEntities.stream()
+                    .map(task -> {
+                        TaskDTO taskDTO = new TaskDTO();
+                        taskDTO.setId(task.getId());
+                        try {
+                            taskDTO.setMessageContent(aesUtil.decryptMessage(task.getMessageContent())); //Decrypt message
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        taskDTO.setStatus(task.getStatus());
+                        taskDTO.setDeadline(task.getDeadline());
+                        taskDTO.setCreatedTime(task.getCreatedTime());
+                        taskDTO.setUser_id(task.getUser().getId());
+                        return taskDTO;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(taskDTOs);
+        } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
+                 JwtExceptions.UserNotFoundException | ParseException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    //Using this to view the 3 tasks with the closest deadline
+    @GetMapping("/view/startertasks")
+    public ResponseEntity<?> viewStarterTasks(@RequestHeader("Authorization") String token) {
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                throw new Exception("Invalid token");
+            }
+
+            String userEmail = jwtUtil.extractUsername(jwtToken);
+            UserEntity user = userRepository.findByEmail(userEmail);
+            jwtUtil.jwtCheck(token, user);
+
+            // Determine tasks based on role
+            List<TaskEntity> taskEntities;
+            if (Objects.equals(jwtUtil.extractRole(jwtToken), "user")) {
+                taskEntities = taskRepository.findTop3ByUserIdOrderByDeadlineAsc(user.getId()); //User-specific tasks
+            } else {
+                taskEntities = taskRepository.findTop3ByOrderByDeadlineAsc(); //Admin sees all tasks
             }
 
             //Map TaskEntity to TaskDTO

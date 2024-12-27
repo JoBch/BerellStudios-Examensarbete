@@ -33,6 +33,9 @@ public class TaskEntity {
     @Column(name = "created_time")
     private LocalDateTime createdTime = LocalDateTime.now();
 
+    @Column(name = "priority")
+    private int priority;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
