@@ -25,31 +25,38 @@ class MainViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String>("")
     val errorMessage: StateFlow<String> get() = _errorMessage
 
-    fun login(context: Context, email: String, password: String) {
+    fun login(context: Context, email: String, password: String, onResult: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                //Create the login request body
+                // Skapa login request body
                 val loginRequest = UserLoginRequest(email, password)
-                //Make the API call to the backend
+
+                // Gör API-anropet för inloggning
                 val response = RetrofitClient.apiService.login(loginRequest)
-                //Check if the response contains a token
+
+                // Kontrollera om svaret innehåller en token
                 if (response.token != null) {
                     val token = response.token
-                    RetrofitClient.setToken(context, token)  //Set the token
+                    RetrofitClient.setToken(context, token)  // Sätt token
                     _loggedIn.value = true
                     println("Token: $token")
 
-                    //Decode the token to get the role and saving it in sharedpref
+                    // Dekoda token för att få rollen och spara i SharedPreferences
                     val role = JWTUtils.getClaim(token, "role")
                     RetrofitClient.setRole(context, role)
                     println("User Role: $role")
+
+                    // Skicka tillbaka success-resultatet
+                    onResult("Success")
                 } else {
-                    //Handle error if token is not present
-                    println("Login failed: $response")
+                    // Om token inte finns, hantera fel
+                    println("Login failed: No token in response")
+                    onResult("Invalid credentials")
                 }
             } catch (e: Exception) {
-                //Handle any errors
+                // Hantera eventuella fel (t.ex. nätverksproblem eller serverfel)
                 println("Login failed: ${e.message}")
+                onResult("Error")
             }
         }
     }

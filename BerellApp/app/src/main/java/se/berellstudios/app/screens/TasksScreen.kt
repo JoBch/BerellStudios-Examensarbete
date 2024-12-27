@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -51,6 +52,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
     var taskMessage by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(TaskStatus.TODO) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
@@ -105,6 +107,14 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        // Display error message if any
+                        if (errorMessage.isNotEmpty()) {
+                            Text(
+                                text = errorMessage,
+                                color = Color.Red, // You can change the color to something else if preferred
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
                         Button(
                             onClick = {
                                 showDateTimePicker(context) { dateTime ->
@@ -128,18 +138,23 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                         Button(
                             onClick = {
-                                //Create task
-                                if (deadline != null) {
-                                    val task = TaskDTO(
-                                        id = null, //Set by the server
-                                        messageContent = taskMessage,
-                                        status = selectedStatus.dbValue,
-                                        deadline = deadline,
-                                        createdTime = "", //Set by the server
-                                        user_id = null //Set by the server
-                                    )
-                                    mainViewModel.createTask(context, task)
+                                if(taskMessage.isBlank()){
+                                    errorMessage="forgot to write a task"
+                                }else {
+                                    if (deadline != null) {
+                                        val task = TaskDTO(
+                                            id = null, //Set by the server
+                                            messageContent = taskMessage,
+                                            status = selectedStatus.dbValue,
+                                            deadline = deadline,
+                                            createdTime = "", //Set by the server
+                                            user_id = null //Set by the server
+                                        )
+                                        mainViewModel.createTask(context, task)
+                                    }
                                 }
+                                //Create task
+
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {

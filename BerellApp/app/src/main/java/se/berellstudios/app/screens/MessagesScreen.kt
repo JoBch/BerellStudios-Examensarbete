@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -30,6 +31,7 @@ import se.berellstudios.app.ui.theme.BerellAppTheme
 fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
     mainViewModel.viewMessages()
     var message by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -50,11 +52,24 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                             modifier = Modifier.fillMaxWidth()
                         )
 
+                        //Show error message if any
+                        if (errorMessage.isNotEmpty()) {
+                            Text(
+                                text = errorMessage,
+                                color = Color.Red,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+
                         Button(
                             onClick = {
+                                if(message.isBlank()){
+                                    errorMessage="message is empty, please write SOMETHING"
+                                }else{
+                                    errorMessage=""
                                 //Calling createMessage
                                 mainViewModel.createMessage(context, message)
-                                Log.i("Andreas", "CreateMessage: $message")
+                                Log.i("Andreas", "CreateMessage: $message")}
                             }
                         ) {
                             Text("Create Message")

@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.components.Greeting
@@ -30,6 +31,7 @@ fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -59,11 +61,28 @@ fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
                         label = { Text("a secure password PLEASE") },
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    // Display error message if any
+                    if (errorMessage.isNotEmpty()) {
+                        Text(
+                            text = errorMessage,
+                            color = Color.Red, // You can change the color to something else if preferred
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
                     Button(
                         onClick = {
-                            //Calling register to register a user.
-                            viewModel.register(email, username, password)
-                            navController.navigate("login")
+                            if (email.isBlank() || username.isBlank() || password.isBlank()){
+                                errorMessage = "Something is missing, check all fields again"
+                            }  else if (!isValidEmail(email)) {
+                                errorMessage = "Invalid email address"
+                            } else{
+                                errorMessage = ""
+                                //Calling register to register a user.
+                                viewModel.register(email, username, password)
+                                navController.navigate("login")
+                            }
+
                         }
                     ) {
                         Text("Create user AKA gå tillbaka till logga in")
@@ -72,4 +91,8 @@ fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
             }
         }
     }
+}
+fun isValidEmail(email: String): Boolean {
+    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$".toRegex()
+    return email.matches(emailRegex)
 }

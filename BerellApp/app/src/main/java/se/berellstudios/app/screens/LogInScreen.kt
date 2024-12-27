@@ -81,6 +81,7 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
                         onValueChange = { password = it },
                         label = { Text("Password") },
                         visualTransformation = PasswordVisualTransformation(),
+
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -98,13 +99,29 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
                     //Login button
                     Button(
                         onClick = {
-                            //Call the login function from ViewModel
-                            viewModel.login(context, username, password)
+                            if (username.isBlank() || password.isBlank()) {
+                                errorMessage = "Username and password are required"
+                            } else {
+                                // Nollställ felmeddelandet om båda fälten är ifyllda
+                                errorMessage = ""
+                                // Anropa login-funktionen och hantera eventuella fel
+                                viewModel.login(context, username, password) { loginResult ->
+                                    if (loginResult == "Invalid credentials") {
+                                        errorMessage = "Invalid username or password"
+                                    } else if (loginResult == "Error") {
+                                        errorMessage = "An error occurred, please try again"
+                                    } else {
+                                        // Vid lyckad inloggning
+                                        // Det här skulle hanteras av observer för loggedIn, som du redan har
+                                    }
+                                }
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Log in")
                     }
+
 
                     Spacer(modifier = Modifier.height(16.dp))
 
