@@ -1,6 +1,5 @@
 package se.berellstudios.app
 
-import okhttp3.internal.concurrent.Task
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -45,7 +44,7 @@ interface ApiService {
 
     @POST("/messages/create")
     suspend fun createMessage(
-        @Body request: MessageDTO,
+        @Body request: String,
     ): MessageResponse
 
     @GET("/messages/view")
