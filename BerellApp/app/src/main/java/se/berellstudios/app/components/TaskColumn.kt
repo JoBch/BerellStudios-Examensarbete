@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.TaskDTO
+import se.berellstudios.app.components.TaskItem
 
 //Columnerna är mitten
 @Composable

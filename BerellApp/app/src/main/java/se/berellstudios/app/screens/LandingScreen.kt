@@ -1,6 +1,7 @@
 package se.berellstudios.app.screens
 
 import android.content.Context
+import android.view.Menu
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -15,6 +16,7 @@ import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.TaskList
+import se.berellstudios.app.components.MinimalDropdownMenu
 
 
 //TODO vi behöver olika landingScreen beroende på om det är admin eller user som loggar in.
@@ -33,7 +35,9 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
+                    MinimalDropdownMenu()
                     //HÄR VILL JAG FÅ IN NAMN och ROLE PÅ DEN INLOGGADE
+
                     Text("Welcome, you're logged in! Role: " + RetrofitClient.getRole(context))
                     Spacer(modifier = Modifier.height(16.dp))
 
