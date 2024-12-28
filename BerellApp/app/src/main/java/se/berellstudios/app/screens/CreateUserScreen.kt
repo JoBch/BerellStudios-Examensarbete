@@ -74,7 +74,7 @@ fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
                         onClick = {
                             if (email.isBlank() || username.isBlank() || password.isBlank()){
                                 errorMessage = "Something is missing, check all fields again"
-                            }  else if (!isValidEmail(email)) {
+                            } else if (!isValidEmail(email)) {
                                 errorMessage = "Invalid email address"
                             } else{
                                 errorMessage = ""
