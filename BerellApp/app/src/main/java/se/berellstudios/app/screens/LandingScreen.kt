@@ -16,7 +16,7 @@ import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.TaskList
-import se.berellstudios.app.components.MinimalDropdownMenu
+import se.berellstudios.app.components.DropdownMenuWithDetails
 
 
 //TODO vi behöver olika landingScreen beroende på om det är admin eller user som loggar in.
@@ -32,29 +32,16 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    MinimalDropdownMenu()
+                    DropdownMenuWithDetails(navController, mainViewModel)
                     //HÄR VILL JAG FÅ IN NAMN och ROLE PÅ DEN INLOGGADE
 
                     Text("Welcome, you're logged in! Role: " + RetrofitClient.getRole(context))
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Button(onClick = { navController.navigate("messages") }) {
-                        Text("Go to Messages")
-                    }
-
-                    Button(onClick = { navController.navigate("tasks") }) {
-                        Text("Go to Tasks")
-                    }
-
-                    Button(onClick = {
-                        mainViewModel.logout(context)
-                        navController.navigate("login")
-                    }) {
-                        Text("Logout")
-                    }
                     //Viewing the three tasks with the nearest deadline
                     TaskList(viewModel = mainViewModel)
                 }
