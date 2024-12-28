@@ -77,7 +77,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun createMessage(context: Context, message: String) {
+    fun createMessage(context: Context, message: MessageDTO) {
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.apiService.createMessage(message)

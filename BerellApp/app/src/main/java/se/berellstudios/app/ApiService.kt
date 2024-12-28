@@ -1,5 +1,6 @@
 package se.berellstudios.app
 
+import android.os.Message
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -44,7 +45,7 @@ interface ApiService {
 
     @POST("/messages/create")
     suspend fun createMessage(
-        @Body request: String,
+        @Body request: MessageDTO,
     ): MessageResponse
 
     @GET("/messages/view")

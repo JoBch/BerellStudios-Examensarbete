@@ -93,7 +93,7 @@ public class TaskController {
             UserEntity user = userRepository.findByEmail(userEmail);
             jwtUtil.jwtCheck(token, user);
 
-            // Determine tasks based on role
+            //Determine tasks based on role
             List<TaskEntity> taskEntities;
             if (Objects.equals(jwtUtil.extractRole(jwtToken), "user")) {
                 taskEntities = taskRepository.findAllByUserIdOrderByDeadlineAsc(user.getId()); //User-specific tasks
@@ -102,24 +102,7 @@ public class TaskController {
             }
 
             //Map TaskEntity to TaskDTO
-            List<TaskDTO> taskDTOs = taskEntities.stream()
-                    .map(task -> {
-                        TaskDTO taskDTO = new TaskDTO();
-                        taskDTO.setId(task.getId());
-                        try {
-                            taskDTO.setMessageContent(aesUtil.decryptMessage(task.getMessageContent())); //Decrypt message
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                        taskDTO.setStatus(task.getStatus());
-                        taskDTO.setDeadline(task.getDeadline());
-                        taskDTO.setCreatedTime(task.getCreatedTime());
-                        taskDTO.setUser_id(task.getUser().getId());
-                        return taskDTO;
-                    })
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(taskDTOs);
+            return getResponseEntity(taskEntities);
         } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
                  JwtExceptions.UserNotFoundException | ParseException ex) {
             response.put("message", ex.getMessage());
@@ -129,6 +112,7 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 
     //Using this to view the 3 tasks with the closest deadline
     @GetMapping("/view/startertasks")
@@ -145,7 +129,7 @@ public class TaskController {
             UserEntity user = userRepository.findByEmail(userEmail);
             jwtUtil.jwtCheck(token, user);
 
-            // Determine tasks based on role
+            //Determine tasks based on role
             List<TaskEntity> taskEntities;
             if (Objects.equals(jwtUtil.extractRole(jwtToken), "user")) {
                 taskEntities = taskRepository.findTop3ByUserIdOrderByDeadlineAsc(user.getId()); //User-specific tasks
@@ -154,24 +138,7 @@ public class TaskController {
             }
 
             //Map TaskEntity to TaskDTO
-            List<TaskDTO> taskDTOs = taskEntities.stream()
-                    .map(task -> {
-                        TaskDTO taskDTO = new TaskDTO();
-                        taskDTO.setId(task.getId());
-                        try {
-                            taskDTO.setMessageContent(aesUtil.decryptMessage(task.getMessageContent())); //Decrypt message
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                        taskDTO.setStatus(task.getStatus());
-                        taskDTO.setDeadline(task.getDeadline());
-                        taskDTO.setCreatedTime(task.getCreatedTime());
-                        taskDTO.setUser_id(task.getUser().getId());
-                        return taskDTO;
-                    })
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(taskDTOs);
+            return getResponseEntity(taskEntities);
         } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
                  JwtExceptions.UserNotFoundException | ParseException ex) {
             response.put("message", ex.getMessage());
@@ -182,6 +149,24 @@ public class TaskController {
         }
     }
 
+    private ResponseEntity<?> getResponseEntity(List<TaskEntity> taskEntities) {
+        List<TaskDTO> taskDTOs = taskEntities.stream()
+                .map(task -> {
+                    TaskDTO taskDTO = new TaskDTO();
+                    taskDTO.setId(task.getId());
+                    try {
+                        taskDTO.setMessageContent(aesUtil.decryptMessage(task.getMessageContent())); //Decrypt message
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    taskDTO.setStatus(task.getStatus());
+                    taskDTO.setDeadline(task.getDeadline());
+                    taskDTO.setCreatedTime(task.getCreatedTime());
+                    taskDTO.setUser_id(task.getUser().getId());
+                    return taskDTO;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(taskDTOs);
+    }
 }
-
-

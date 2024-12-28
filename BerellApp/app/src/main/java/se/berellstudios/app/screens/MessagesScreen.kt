@@ -22,9 +22,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
+import se.berellstudios.app.MessageDTO
 import se.berellstudios.app.RetrofitClient
+import se.berellstudios.app.TaskDTO
 import se.berellstudios.app.components.MessageList
+import se.berellstudios.app.components.showDateTimePicker
 import se.berellstudios.app.ui.theme.BerellAppTheme
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 //Controlling and showing the messages section of our code
 @Composable
@@ -32,6 +37,8 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
     mainViewModel.viewMessages()
     var message by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
+    var deadline by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -63,12 +70,33 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                         Button(
                             onClick = {
+                                showDateTimePicker(context) { dateTime ->
+                                    selectedDateTime = dateTime
+                                    deadline =
+                                        dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Pick a Date and Time")
+                        }
+
+                        Button(
+                            onClick = {
                                 if(message.isBlank()){
                                     errorMessage="message is empty, please write SOMETHING"
                                 }else{
                                     errorMessage=""
+
+                                    val messageDTO = MessageDTO(
+                                        id = null, //Set by the server
+                                        message = message,
+                                        deadline = deadline,
+                                        createdTime = "", //Set by the server
+                                        createdBy = null //Set by the server
+                                    )
                                 //Calling createMessage
-                                mainViewModel.createMessage(context, message)
+                                mainViewModel.createMessage(context, messageDTO)
                                 Log.i("Andreas", "CreateMessage: $message")}
                             }
                         ) {
