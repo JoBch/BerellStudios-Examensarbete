@@ -13,10 +13,11 @@ import java.util.Date;
 
 @Component
 public class JWTUtil {
-    
-    public static String generateToken(String email, String role) throws JOSEException {
+
+    //Accesstoken for the usual stuff
+    public static String generateAccessToken(String email, String role) throws JOSEException {
         final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
-        final long TOKEN_VALIDITY = 100 * 60 * 60 * 10;
+        final long TOKEN_VALIDITY = 100 * 60 * 60 * 10; //1 hour
 
         //Create the HMAC signer with the secret key
         JWSSigner signer = new MACSigner(SECRET_KEY.getBytes());
@@ -39,6 +40,28 @@ public class JWTUtil {
         return jwsObject.serialize();
     }
 
+    //RefreshToken to keep the user loggedin
+    public static String generateRefreshToken(String email) throws JOSEException {
+        //TODO ändra key
+        final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
+        final long REFRESH_TOKEN_VALIDITY = 1000L * 60 * 60 * 24 * 30; //30 days
+
+        JWSSigner signer = new MACSigner(SECRET_KEY.getBytes());
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject(email)
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
+                .build();
+
+        JWSObject jwsObject = new JWSObject(
+                new JWSHeader(JWSAlgorithm.HS256),
+                new Payload(claimsSet.toJSONObject())
+        );
+
+        jwsObject.sign(signer);
+        return jwsObject.serialize();
+    }
 
     //Validate and parse the JWT token
     public boolean validateToken(String token) {
@@ -51,7 +74,6 @@ public class JWTUtil {
             throw new JwtExceptions.InvalidTokenException("Error parsing the token");
         }
     }
-
 
     //Extract the username (subject) from the JWT token
     public String extractUsername(String token) throws java.text.ParseException {
@@ -97,6 +119,4 @@ public class JWTUtil {
             throw new JwtExceptions.UserNotFoundException("User not found");
         }
     }
-
-
 }

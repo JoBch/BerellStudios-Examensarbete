@@ -1,11 +1,10 @@
 package se.berellstudios.app.screens
 
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,6 +25,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import org.w3c.dom.Text
 import se.berellstudios.app.APICalls
 import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -39,6 +39,7 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    var rememberMe by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     //Observe the login state
@@ -96,23 +97,40 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,  // Vertically center-align the checkbox and text
+                        modifier = Modifier.fillMaxWidth() // Make the Row take up the full width of the screen
+                    ) {
+                        Checkbox(
+                            checked = rememberMe,
+                            onCheckedChange = { rememberMe = it }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp)) // Add some space between the checkbox and text
+                        Text("Remember Me", style = TextStyle(fontSize = 16.sp)) // Text next to the checkbox
+                    }
+
                     //Login button
                     Button(
                         onClick = {
                             if (username.isBlank() || password.isBlank()) {
                                 errorMessage = "Username and password are required"
                             } else {
-                                // Nollställ felmeddelandet om båda fälten är ifyllda
+                                //Nollställ felmeddelandet om båda fälten är ifyllda
                                 errorMessage = ""
-                                // Anropa login-funktionen och hantera eventuella fel
-                                viewModel.login(context, username, password) { loginResult ->
+                                //Anropa login-funktionen och hantera eventuella fel
+                                viewModel.login(
+                                    context,
+                                    username,
+                                    password,
+                                    rememberMe
+                                ) { loginResult ->
                                     if (loginResult == "Invalid credentials") {
                                         errorMessage = "Invalid username or password"
                                     } else if (loginResult == "Error") {
                                         errorMessage = "An error occurred, please try again"
                                     } else {
-                                        // Vid lyckad inloggning
-                                        // Det här skulle hanteras av observer för loggedIn, som du redan har
+                                        //Vid lyckad inloggning
+                                        //Det här skulle hanteras av observer för loggedIn, som du redan har
                                     }
                                 }
                             }
@@ -153,15 +171,6 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    //Create user button
-//                    Button(
-//                        onClick = {
-//                            navController.navigate("createuser")
-//                        },
-//                        modifier = Modifier.fillMaxWidth()
-//                    ) {
-//                        Text("Create user")
-//                    }
                     Box(
                         modifier = Modifier.fillMaxSize() // Box fyller hela skärmen
                     ) {
@@ -182,7 +191,6 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
                             )
                         )
                     }
-
                 }
             }
         }

@@ -7,12 +7,11 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 //Doing it this way because its easier to reach them from other classes
-data class UserLoginRequest(val email: String, val password: String)
+data class UserLoginRequest(val email: String, val password: String, val rememberMe: Boolean)
 data class UserRegisterRequest(val email: String, val username: String, val password: String)
-data class MessageRequest(val message: String)
 data class PingResponse(val message: String)
 
-data class LoginResponse(val token: String)
+data class LoginResponse(val accessToken: String, val refreshToken: String?)
 data class MessageResponse(val message: String)
 
 //Building a DTO so we can extract or send the data we need from it.
@@ -39,6 +38,9 @@ interface ApiService {
 
     @POST("/users/login")
     suspend fun login(@Body loginRequest: UserLoginRequest): LoginResponse
+
+    @POST("/users/refresh")
+    fun refreshToken(@Body refreshToken: Map<String, String>): Call<LoginResponse>
 
     @POST("/users/register")
     suspend fun register(@Body registerRequest: UserRegisterRequest): MessageResponse

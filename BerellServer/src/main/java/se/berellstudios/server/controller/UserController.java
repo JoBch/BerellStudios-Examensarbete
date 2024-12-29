@@ -11,6 +11,7 @@ import se.berellstudios.server.repositories.UserRepository;
 import se.berellstudios.server.services.UserService;
 import se.berellstudios.server.utils.JWTUtil;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @Autowired
     private UserRepository userRepository;
@@ -38,24 +42,43 @@ public class UserController {
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, Object> credentials, HttpSession session) throws JOSEException {
         String email = (String) credentials.get("email");
         String password = (String) credentials.get("password");
+        boolean rememberMe = (Boolean) credentials.getOrDefault("rememberMe", false); //Default to false
 
         boolean loginSuccessful = userService.loginUser(email, password, session);
         if (loginSuccessful) {
-            // Fetch user from the database to get the role
             UserEntity user = userRepository.findByEmail(email);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not found"));
             }
 
             String role = user.getRole();
-            String token = JWTUtil.generateToken(email, role); //Pass the role to the token generator
-
-            // Return token in the response
+            String accessToken = JWTUtil.generateAccessToken(email, role); //Short-lived access token
             Map<String, String> response = new HashMap<>();
-            response.put("token", token);
+            response.put("accessToken", accessToken);
+
+            if (rememberMe) {
+                String refreshToken = JWTUtil.generateRefreshToken(email); //Generate long-lived refresh token
+                response.put("refreshToken", refreshToken);
+            }
+
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
+        }
+    }
+
+
+    //Giving the user a new accesstoken looking at the refreshtoken
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> request) throws JOSEException, ParseException {
+        String refreshToken = request.get("refreshToken");
+
+        if (jwtUtil.validateToken(refreshToken)) {
+            String email = jwtUtil.extractUsername(refreshToken);
+            String newAccessToken = JWTUtil.generateAccessToken(email, "userRole"); //Generate new access token
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid refresh token"));
         }
     }
 

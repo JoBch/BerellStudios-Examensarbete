@@ -1,6 +1,7 @@
 package se.berellstudios.app
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,42 +26,43 @@ class MainViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String>("")
     val errorMessage: StateFlow<String> get() = _errorMessage
 
-    fun login(context: Context, email: String, password: String, onResult: (String) -> Unit) {
+    fun login(
+        context: Context,
+        email: String,
+        password: String,
+        rememberMe: Boolean,
+        onResult: (String) -> Unit
+    ) {
         viewModelScope.launch {
             try {
-                // Skapa login request body
-                val loginRequest = UserLoginRequest(email, password)
-
-                // Gör API-anropet för inloggning
+                val loginRequest = UserLoginRequest(email, password, rememberMe)
                 val response = RetrofitClient.apiService.login(loginRequest)
 
-                // Kontrollera om svaret innehåller en token
-                if (response.token != null) {
-                    val token = response.token
-                    RetrofitClient.setToken(context, token)  // Sätt token
+                //Check if accessToken and refreshToken are returned
+                val accessToken = response.accessToken
+                val refreshToken = response.refreshToken
+
+                if (accessToken != null) {
+                    RetrofitClient.setAccessToken(context, accessToken)
+                    if(refreshToken != null){
+                        RetrofitClient.setRefreshToken(context, refreshToken)
+                    }
                     _loggedIn.value = true
-                    println("Token: $token")
 
-                    // Dekoda token för att få rollen och spara i SharedPreferences
-                    val role = JWTUtils.getClaim(token, "role")
+                    val role = JWTUtils.getClaim(accessToken, "role")
                     RetrofitClient.setRole(context, role)
-                    println("User Role: $role")
 
-                    // Skicka tillbaka success-resultatet
+                    Log.i("Tokens", "AccessToken: $accessToken --- RefreshToken $refreshToken")
                     onResult("Success")
                 } else {
-                    // Om token inte finns, hantera fel
-                    println("Login failed: No token in response")
                     onResult("Invalid credentials")
                 }
             } catch (e: Exception) {
-                // Hantera eventuella fel (t.ex. nätverksproblem eller serverfel)
                 println("Login failed: ${e.message}")
                 onResult("Error")
             }
         }
     }
-
 
     fun register(email: String, username: String, password: String) {
         viewModelScope.launch {
@@ -139,7 +141,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun logout(context: Context) {
-        RetrofitClient.clearToken(context)
+        RetrofitClient.clearAccessToken(context)
         RetrofitClient.clearRole(context)
         _loggedIn.value = false
     }
