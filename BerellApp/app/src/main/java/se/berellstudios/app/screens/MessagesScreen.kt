@@ -82,10 +82,10 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                         Button(
                             onClick = {
-                                if(message.isBlank()){
-                                    errorMessage="message is empty, please write SOMETHING"
-                                }else{
-                                    errorMessage=""
+                                if (message.isBlank()) {
+                                    errorMessage = "message is empty, please write SOMETHING"
+                                } else {
+                                    errorMessage = ""
 
                                     val messageDTO = MessageDTO(
                                         id = null, //Set by the server
@@ -94,9 +94,10 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                                         createdTime = "", //Set by the server
                                         createdBy = null //Set by the server
                                     )
-                                //Calling createMessage
-                                mainViewModel.createMessage(context, messageDTO)
-                                Log.i("Andreas", "CreateMessage: $message")}
+                                    //Calling createMessage
+                                    mainViewModel.createMessage(context, messageDTO)
+                                    Log.i("Andreas", "CreateMessage: $message")
+                                }
                             }
                         ) {
                             Text("Create Message")

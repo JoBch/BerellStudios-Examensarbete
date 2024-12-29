@@ -28,6 +28,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    //Register new user
     @PostMapping("/register")
     public Map<String, String> registerUser(@RequestBody UserEntity newUser) {
         try {
@@ -38,6 +39,7 @@ public class UserController {
         }
     }
 
+    //Logging in against db and generating tokens
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, Object> credentials, HttpSession session) throws JOSEException {
         String email = (String) credentials.get("email");
@@ -56,8 +58,9 @@ public class UserController {
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", accessToken);
 
+            //Generate long-lived refresh token if the bool is true from app
             if (rememberMe) {
-                String refreshToken = JWTUtil.generateRefreshToken(email); //Generate long-lived refresh token
+                String refreshToken = JWTUtil.generateRefreshToken(email);
                 response.put("refreshToken", refreshToken);
             }
 
@@ -75,16 +78,17 @@ public class UserController {
 
         if (jwtUtil.validateToken(refreshToken)) {
             String email = jwtUtil.extractUsername(refreshToken);
-            String newAccessToken = JWTUtil.generateAccessToken(email, "userRole"); //Generate new access token
+            //Generate new access token
+            String newAccessToken = JWTUtil.generateAccessToken(email, "userRole");
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid refresh token"));
         }
     }
 
+    //This returns a simple response when the server is up and reachable
     @GetMapping("/ping")
     public Map<String, String> ping() {
-        //This returns a simple response when the server is up and reachable
         return Map.of("message", "Server is running and connected!");
     }
 }

@@ -40,7 +40,7 @@ public class JWTUtil {
         return jwsObject.serialize();
     }
 
-    //RefreshToken to keep the user loggedin
+    //RefreshToken to keep the user logged in adn using it to generate new ATs if needed
     public static String generateRefreshToken(String email) throws JOSEException {
         //TODO ändra key
         final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";

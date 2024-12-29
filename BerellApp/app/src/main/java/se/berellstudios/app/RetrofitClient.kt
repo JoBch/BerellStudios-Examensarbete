@@ -31,6 +31,7 @@ object RetrofitClient {
             var response = chain.proceed(requestBuilder.build())
 
             //If the response is 401 Unauthorized, attempt to refresh the token
+            //TODO osäker på om detta funkar som önskat
             if (response.code == 401) {
                 //Try refreshing the token
                 val refreshToken = getRefreshToken(context)
@@ -52,7 +53,6 @@ object RetrofitClient {
             response
         }
     }
-
 
 
     //OkHttp client with the interceptor
@@ -95,7 +95,7 @@ object RetrofitClient {
         }
     }
 
-    //TODO kanske göra om alla token realterade till encrypted sharedPrefs.
+    //TODO kanske göra om alla token realterade get/set till encrypted sharedPrefs.
     //Load the token from SharedPreferences when the app starts to set it locally for authInterceptor
     fun loadToken(context: Context) {
         jwtToken = getAccessToken(context)

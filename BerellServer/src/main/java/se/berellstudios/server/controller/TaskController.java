@@ -37,6 +37,7 @@ public class TaskController {
     @Autowired
     private AESUtil aesUtil;
 
+    //Create a new task
     @PostMapping("/create")
     public ResponseEntity<Map<String, String>> createTasks(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskDTO) {
 
@@ -50,11 +51,10 @@ public class TaskController {
             String username = jwtUtil.extractUsername(jwtToken);
             UserEntity user = userRepository.findByEmail(username);
 
-            // Checking the token
             jwtUtil.jwtCheck(token, user);
             String encryptedMessage = aesUtil.encryptMessage(taskDTO.getMessageContent());
 
-            // Create and save the task entity
+            //Create and save the task entity
             TaskEntity taskEntity = new TaskEntity();
             taskEntity.setMessageContent(encryptedMessage);
             taskEntity.setUser(user);
@@ -77,8 +77,7 @@ public class TaskController {
         }
     }
 
-
-
+    //View tasks depending on if user.role = "user" or "admin"
     @GetMapping("/view")
     public ResponseEntity<?> viewTasks(@RequestHeader("Authorization") String token) {
         Map<String, String> response = new HashMap<>();
@@ -149,6 +148,7 @@ public class TaskController {
         }
     }
 
+    //Duplicated code so created this for readability
     private ResponseEntity<?> getResponseEntity(List<TaskEntity> taskEntities) {
         List<TaskDTO> taskDTOs = taskEntities.stream()
                 .map(task -> {

@@ -2,7 +2,15 @@ package se.berellstudios.app.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
@@ -25,17 +33,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import org.w3c.dom.Text
 import se.berellstudios.app.APICalls
+import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
-import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.ui.theme.Purple40
 
 
 //Landing page when loggedin=false
 @Composable
-fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
+fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
@@ -43,7 +50,7 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     //Observe the login state
-    val loggedIn by viewModel.loggedIn.observeAsState(false)
+    val loggedIn by mainViewModel.loggedIn.observeAsState(false)
 
     //If the user is logged in, navigate to the start page
     if (loggedIn) {
@@ -97,16 +104,17 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    //Building this in a row to make it align properly
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,  // Vertically center-align the checkbox and text
-                        modifier = Modifier.fillMaxWidth() // Make the Row take up the full width of the screen
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Checkbox(
                             checked = rememberMe,
                             onCheckedChange = { rememberMe = it }
                         )
-                        Spacer(modifier = Modifier.width(8.dp)) // Add some space between the checkbox and text
-                        Text("Remember Me", style = TextStyle(fontSize = 16.sp)) // Text next to the checkbox
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Remember Me", style = TextStyle(fontSize = 16.sp))
                     }
 
                     //Login button
@@ -118,7 +126,7 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
                                 //Nollställ felmeddelandet om båda fälten är ifyllda
                                 errorMessage = ""
                                 //Anropa login-funktionen och hantera eventuella fel
-                                viewModel.login(
+                                mainViewModel.login(
                                     context,
                                     username,
                                     password,
@@ -128,9 +136,6 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
                                         errorMessage = "Invalid username or password"
                                     } else if (loginResult == "Error") {
                                         errorMessage = "An error occurred, please try again"
-                                    } else {
-                                        //Vid lyckad inloggning
-                                        //Det här skulle hanteras av observer för loggedIn, som du redan har
                                     }
                                 }
                             }
@@ -172,18 +177,17 @@ fun LogInScreen(navController: NavController, viewModel: MainViewModel) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Box(
-                        modifier = Modifier.fillMaxSize() // Box fyller hela skärmen
+                        modifier = Modifier.fillMaxSize() //Box fyller hela skärmen
                     ) {
-                        // Andra UI-element här...
 
-                        // Klickbar text som är placerad längst ner
+                        //Klickbar text som är placerad längst ner
                         Text(
                             text = "Click here to create a new account",
                             modifier = Modifier
                                 .clickable {
                                     navController.navigate("createuser")
                                 }
-                                .align(Alignment.BottomCenter),  // Placerar texten längst ner
+                                .align(Alignment.BottomCenter),  //Placerar texten längst ner
                             style = TextStyle(
                                 fontSize = 15.sp,
                                 color = Purple40,

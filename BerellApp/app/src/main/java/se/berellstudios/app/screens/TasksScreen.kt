@@ -54,7 +54,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
     var statusExpanded by remember { mutableStateOf(false) }
     var priorityExpanded by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(TaskStatus.TODO) }
-    var selectedPrio by remember { mutableIntStateOf(3) }
+    var selectedPriority by remember { mutableIntStateOf(3) }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
@@ -110,7 +110,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                             onClick = { priorityExpanded = !priorityExpanded },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Prio: $selectedPrio")
+                            Text("Prio: $selectedPriority")
                         }
                         DropdownMenu(
                             expanded = priorityExpanded,
@@ -120,11 +120,11 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 DropdownMenuItem(
                                     text = { Text("" + prio) },
                                     onClick = {
-                                        selectedPrio = prio
+                                        selectedPriority = prio
                                         priorityExpanded = false
                                     },
                                     leadingIcon = {
-                                        if (prio == selectedPrio) {
+                                        if (prio == selectedPriority) {
                                             Icon(
                                                 imageVector = Icons.Default.Check,
                                                 contentDescription = null
@@ -166,7 +166,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                     messageContent = taskMessage,
                                     status = selectedStatus.dbValue,
                                     deadline = deadline,
-                                    priority = selectedPrio,
+                                    priority = selectedPriority,
                                     createdTime = "", //Set by the server
                                     user_id = null //Set by the server
                                 )

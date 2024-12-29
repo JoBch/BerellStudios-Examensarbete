@@ -21,13 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.MainViewModel
+import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
 
 //Creating user, navigate here from startpage
 @Composable
-fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
+fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -72,14 +72,14 @@ fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
                     }
                     Button(
                         onClick = {
-                            if (email.isBlank() || username.isBlank() || password.isBlank()){
+                            if (email.isBlank() || username.isBlank() || password.isBlank()) {
                                 errorMessage = "Something is missing, check all fields again"
                             } else if (!isValidEmail(email)) {
                                 errorMessage = "Invalid email address"
-                            } else{
+                            } else {
                                 errorMessage = ""
                                 //Calling register to register a user.
-                                viewModel.register(email, username, password)
+                                mainViewModel.register(email, username, password)
                                 navController.navigate("login")
                             }
 
@@ -92,6 +92,7 @@ fun CreateUserScreen(navController: NavController, viewModel: MainViewModel) {
         }
     }
 }
+
 fun isValidEmail(email: String): Boolean {
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$".toRegex()
     return email.matches(emailRegex)

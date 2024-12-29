@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    //LiveData eller StateFlow, VEM VET
     private val _loggedIn = MutableLiveData(false)
     val loggedIn: LiveData<Boolean> get() = _loggedIn
 
@@ -44,7 +43,7 @@ class MainViewModel : ViewModel() {
 
                 if (accessToken != null) {
                     RetrofitClient.setAccessToken(context, accessToken)
-                    if(refreshToken != null){
+                    if (refreshToken != null) {
                         RetrofitClient.setRefreshToken(context, refreshToken)
                     }
                     _loggedIn.value = true
@@ -107,7 +106,6 @@ class MainViewModel : ViewModel() {
     fun createTask(context: Context, task: TaskDTO) {
         viewModelScope.launch {
             try {
-                println("Deadline: " + task)
                 val response = RetrofitClient.apiService.createTask(task)
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
