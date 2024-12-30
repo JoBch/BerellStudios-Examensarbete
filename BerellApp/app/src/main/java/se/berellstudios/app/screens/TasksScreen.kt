@@ -18,6 +18,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -171,13 +173,12 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                     user_id = null //Set by the server
                                 )
                                 mainViewModel.createTask(context, task)
-                                //TODO denna verkar ej funka här, hinner kanske inte med
-                                mainViewModel.viewTasks()
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Create Task")
                         }
+
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 

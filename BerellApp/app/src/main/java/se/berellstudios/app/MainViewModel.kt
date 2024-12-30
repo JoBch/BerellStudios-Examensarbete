@@ -83,6 +83,8 @@ class MainViewModel : ViewModel() {
             try {
                 val response = RetrofitClient.apiService.createMessage(message)
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+                //After creating the message, reload the message list
+                viewMessages()
             } catch (e: Exception) {
                 Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                 println("Failed to fetch messages: ${e.message}")
@@ -103,11 +105,26 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun viewTasks() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.viewTasks()
+                _tasks.value = response //Update the task list
+                println("Tasks Retrieved: ${_tasks.value}")
+            } catch (e: Exception) {
+                println("Failed to fetch tasks: ${e.message}")
+            }
+        }
+    }
+
     fun createTask(context: Context, task: TaskDTO) {
         viewModelScope.launch {
             try {
+                //Create the task through the API
                 val response = RetrofitClient.apiService.createTask(task)
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+                //After creating the task, reload the task list
+                viewTasks()
             } catch (e: Exception) {
                 println("Failed to create task: ${e.message}")
             }
@@ -126,19 +143,8 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun viewTasks() {
-        viewModelScope.launch {
-            try {
-                val response = RetrofitClient.apiService.viewTasks()
-                _tasks.value = response
-                println("Tasks Retrieved${_tasks.value}")
-            } catch (e: Exception) {
-                println("Failed to fetch tasks: ${e.message}")
-            }
-        }
-    }
-
     fun logout(context: Context) {
+        RetrofitClient.clearRefreshToken(context)
         RetrofitClient.clearAccessToken(context)
         RetrofitClient.clearRole(context)
         _loggedIn.value = false

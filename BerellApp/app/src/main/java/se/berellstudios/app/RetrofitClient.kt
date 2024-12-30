@@ -30,13 +30,15 @@ object RetrofitClient {
             //Proceed with the request (it can now have the Authorization header)
             var response = chain.proceed(requestBuilder.build())
 
-            //If the response is 401 Unauthorized, attempt to refresh the token
-            //TODO osäker på om detta funkar som önskat
-            if (response.code == 401) {
+            //If the response is 400 Unauthorized, attempt to refresh the token
+            //TODO funkar som önskat, men är det rätt sätt att göra det på?
+            if (response.code == 400) {
                 //Try refreshing the token
                 val refreshToken = getRefreshToken(context)
                 if (refreshToken != null) {
                     val newAccessToken = refreshAccessToken(refreshToken, context)
+                    //Closing the old response so we can create a new
+                    response.close()
 
                     //If new access token is retrieved, retry the original request with the new token
                     if (newAccessToken != null) {
@@ -95,7 +97,7 @@ object RetrofitClient {
         }
     }
 
-    //TODO kanske göra om alla token realterade get/set till encrypted sharedPrefs.
+    //TODO göra om alla token realterade get/set till encrypted sharedPrefs.
     //Load the token from SharedPreferences when the app starts to set it locally for authInterceptor
     fun loadToken(context: Context) {
         jwtToken = getAccessToken(context)
@@ -120,6 +122,11 @@ object RetrofitClient {
     fun setRefreshToken(context: Context, refreshToken: String) {
         val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         sharedPref.edit().putString("refreshToken", refreshToken).apply()
+    }
+
+    fun clearRefreshToken(context: Context){
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        sharedPref.edit().remove("refreshToken").apply()
     }
 
     //Retrieve the refresh token from SharedPreferences
