@@ -3,6 +3,7 @@ package se.berellstudios.app.screens
 import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,23 +31,36 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
     mainViewModel.viewStarterTasks()
     val context: Context = LocalContext.current
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
         BerellAppTheme {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .fillMaxWidth()
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    DropdownMenuWithDetails(navController, mainViewModel)
-                    //HÄR VILL JAG FÅ IN NAMN och ROLE PÅ DEN INLOGGADE
+                    // Row för välkomsttext och meny
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Welcome, you're logged in! Role: ${RetrofitClient.getRole(context)}",
+                            modifier = Modifier.weight(1f) // Texten fyller utrymmet horisontellt
+                        )
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        ) {
+                            DropdownMenuWithDetails(navController, mainViewModel) // Menyn hamnar till höger
+                        }
+                    }
 
-                    Text("Welcome, you're logged in! Role: " + RetrofitClient.getRole(context))
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    //Viewing the three tasks with the nearest deadline
+                    // Viewing the three tasks with the nearest deadline
                     TaskList(viewModel = mainViewModel)
                 }
             }

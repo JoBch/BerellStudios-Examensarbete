@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
@@ -44,11 +45,7 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
     mainViewModel.viewStarterTasks()
     val context: Context = LocalContext.current
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
+    Box {
         IconButton(onClick = { expanded = !expanded }) {
             Icon(Icons.Default.MoreVert, contentDescription = "More options")
         }
@@ -60,27 +57,32 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
             DropdownMenuItem(
                 text = { Text("Profile") },
                 leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) },
-                onClick = {  showToast(context, "PROFILE UNDER CONSTRUCTION")}
+                onClick = { showToast(context, "PROFILE UNDER CONSTRUCTION") }
             )
             DropdownMenuItem(
                 text = { Text("Settings") },
                 leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                onClick = { showToast(context, "SETTINGS UNDER CONSTRUCTION")}
+                onClick = { showToast(context, "SETTINGS UNDER CONSTRUCTION") }
             )
 
             HorizontalDivider()
 
             // Second section
             DropdownMenuItem(
-                text = { Text("Tasks") },
-                leadingIcon = { Icon(Icons.Outlined.Check, contentDescription = null) },
-                onClick = { navController.navigate("tasks")  }
+                text = { Text("Home") },
+                leadingIcon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+                onClick = { navController.navigate("landing") }
             )
 
             DropdownMenuItem(
+                text = { Text("Tasks") },
+                leadingIcon = { Icon(Icons.Outlined.Check, contentDescription = null) },
+                onClick = { navController.navigate("tasks") }
+            )
+            DropdownMenuItem(
                 text = { Text("Messages OR Events") },
                 leadingIcon = { Icon(Icons.Outlined.DateRange, contentDescription = null) },
-                onClick = { navController.navigate("messages")  }
+                onClick = { navController.navigate("messages") }
             )
 
             HorizontalDivider()
@@ -89,13 +91,15 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
             DropdownMenuItem(
                 text = { Text("About") },
                 leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                onClick = {showToast(context, "HEJ JOEL OCH ANDREAS HAR GJORT DENNA APPEN") }
+                onClick = { showToast(context, "HEJ JOEL OCH ANDREAS HAR GJORT DENNA APPEN") }
             )
             DropdownMenuItem(
                 text = { Text("Log out") },
                 leadingIcon = { Icon(Icons.Outlined.Warning, contentDescription = null) },
-                onClick = { mainViewModel.logout(context)
-                    navController.navigate("login") }
+                onClick = {
+                    mainViewModel.logout(context)
+                    navController.navigate("login")
+                }
             )
         }
     }

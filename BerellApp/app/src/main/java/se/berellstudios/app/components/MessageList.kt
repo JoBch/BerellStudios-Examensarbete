@@ -1,5 +1,6 @@
 package se.berellstudios.app.components
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,18 +8,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
 
 @Composable
 fun MessageList(viewModel: MainViewModel) {
     val messages by viewModel.messages.collectAsState()
+    var deadline by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
     //Building the messagelist using the stateflow populated in MVM
     Column(
         modifier = Modifier
@@ -30,9 +41,11 @@ fun MessageList(viewModel: MainViewModel) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
+
         LazyColumn {
             //Iterating through the messages from MVM and populating the LazyColumn 1 by 1
             items(messages) { message ->
+                    //SKAPA CARDS HÄR SOM INNEHÅLLER MESSAGE
                 Text(
                     text = "" + message,
                     modifier = Modifier //TODO snygga till "CSS"
@@ -41,7 +54,26 @@ fun MessageList(viewModel: MainViewModel) {
                         .background(Color.LightGray)
                         .padding(8.dp)
                 )
+                IconButton(
+                    onClick = {
+                        Toast.makeText(context, "Jag kan inte bli borttagen än", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Delete message",
+                        tint = Color.Red
+                    )
+                }
+
+                    Text(
+                        text = "Deadline: $deadline",
+                        color = Color.DarkGray,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
             }
         }
     }
-}
+

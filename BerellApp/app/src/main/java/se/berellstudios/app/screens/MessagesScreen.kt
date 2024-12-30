@@ -3,6 +3,7 @@ package se.berellstudios.app.screens
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.MessageDTO
 import se.berellstudios.app.RetrofitClient
+import se.berellstudios.app.components.DropdownMenuWithDetails
 import se.berellstudios.app.components.MessageList
 import se.berellstudios.app.components.showDateTimePicker
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -48,8 +50,23 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(16.dp)
+                ) { Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Messages")
+                    Text(
+                        text = "Messages",
+                        modifier = Modifier.weight(1f) // Texten fyller utrymmet horisontellt
+                    )
+                    Box(
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    ) {
+                        DropdownMenuWithDetails(navController, mainViewModel) // Menyn hamnar till höger
+                    }
+                }
+
                     if (RetrofitClient.getRole(context) == "admin") {
                         OutlinedTextField(
                             value = message,
@@ -102,14 +119,6 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                         ) {
                             Text("Create Message")
                         }
-                    }
-                    Button(
-                        onClick = {
-                            //Navigate back to the landing screen
-                            navController.navigateUp()
-                        }
-                    ) {
-                        Text("Back to Landing")
                     }
 
                     //Displaying messages
