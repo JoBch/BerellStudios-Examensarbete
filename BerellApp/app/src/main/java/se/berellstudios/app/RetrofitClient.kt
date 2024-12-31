@@ -68,7 +68,7 @@ object RetrofitClient {
     fun initializeRetrofit(context: Context) {
         val client = createClient(context)
         apiService = Retrofit.Builder()
-            .baseUrl(BASE_URL_ANDREAS)
+            .baseUrl(BASE_URL_JOEL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

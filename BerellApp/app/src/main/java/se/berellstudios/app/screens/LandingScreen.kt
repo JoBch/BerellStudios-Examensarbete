@@ -43,8 +43,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-<<<<<<< Updated upstream
-                    // Row för välkomsttext och meny
+                    //Row för välkomsttext och meny
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -53,20 +52,19 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                     ) {
                         Text(
                             text = "Welcome, you're logged in! Role: ${RetrofitClient.getRole(context)}",
-                            modifier = Modifier.weight(1f) // Texten fyller utrymmet horisontellt
+                            modifier = Modifier.weight(1f)
                         )
                         Box(
                             modifier = Modifier.align(Alignment.CenterVertically)
                         ) {
-                            DropdownMenuWithDetails(navController, mainViewModel) // Menyn hamnar till höger
+                            DropdownMenuWithDetails(navController, mainViewModel) //Menyn hamnar till höger
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Viewing the three tasks with the nearest deadline
-                    TaskList(viewModel = mainViewModel)
-=======
+                    //Viewing the three tasks with the nearest deadline
+                    TaskList(mainViewModel, context)
                     DropdownMenuWithDetails(navController, mainViewModel)
 
                     Text("Welcome, " + RetrofitClient.getUsername(context) + ", you're logged in! Role: " + RetrofitClient.getRole(context))
@@ -74,7 +72,6 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     //Viewing the three tasks with the nearest deadline
                     TaskList(mainViewModel, context)
->>>>>>> Stashed changes
                 }
             }
         }
