@@ -33,6 +33,7 @@ import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.TaskDTO
+import se.berellstudios.app.UserDTO
 import se.berellstudios.app.components.TaskList
 import se.berellstudios.app.components.showDateTimePicker
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -47,9 +48,15 @@ enum class TaskStatus(val dbValue: String, val displayName: String) {
 
 @Composable
 fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
-    mainViewModel.viewTasks()
+    LaunchedEffect(Unit) {
+        mainViewModel.viewTasks()
+        mainViewModel.getAllUsers()
+    }
     val priority = intArrayOf(1, 2, 3)
     val context = LocalContext.current
+    val userList by mainViewModel.users.collectAsState()
+    var userExpanded by remember { mutableStateOf(false) }
+    var selectedUser by remember { mutableStateOf<UserDTO?>(null) }
     var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var deadline by remember { mutableStateOf<String?>(null) }
     var taskMessage by remember { mutableStateOf("") }
@@ -57,6 +64,9 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
     var priorityExpanded by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(TaskStatus.TODO) }
     var selectedPriority by remember { mutableIntStateOf(3) }
+
+    //fetching when the composable is launched
+
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
@@ -85,7 +95,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                         ) {
                             Text("Status: ${selectedStatus.displayName}")
                         }
-                        //TODO se till så att denna hamnar där vi vill
+                        //TODO se till så att dessa hamnar där vi vill
                         DropdownMenu(
                             expanded = statusExpanded,
                             onDismissRequest = { statusExpanded = false }
@@ -136,6 +146,29 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 )
                             }
                         }
+                        Button(
+                            onClick = { userExpanded = !userExpanded },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Assign to: ${selectedUser?.username ?: "Select User"}")
+                        }
+
+                        DropdownMenu(
+                            expanded = userExpanded,
+                            onDismissRequest = { userExpanded = false }
+                        ) {
+                            //Looping through users and populating the list
+                            userList.forEach { user ->
+                                DropdownMenuItem(
+                                    text = { Text("${user.username} (${user.email})") },
+                                    onClick = {
+                                        selectedUser = user
+                                        userExpanded = false
+                                    }
+                                )
+                            }
+                        }
+
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -170,7 +203,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                     deadline = deadline,
                                     priority = selectedPriority,
                                     createdTime = "", //Set by the server
-                                    user_id = null //Set by the server
+                                    user_id = selectedUser?.id
                                 )
                                 mainViewModel.createTask(context, task)
                             },
@@ -191,7 +224,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    TaskList(viewModel = mainViewModel)
+                    TaskList(mainViewModel, context)
                 }
             }
         }

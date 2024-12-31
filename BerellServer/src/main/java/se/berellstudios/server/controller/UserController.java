@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import se.berellstudios.server.dtos.UserResponseDTO;
 import se.berellstudios.server.entities.UserEntity;
 import se.berellstudios.server.repositories.UserRepository;
 import se.berellstudios.server.services.UserService;
@@ -13,7 +14,9 @@ import se.berellstudios.server.utils.JWTUtil;
 
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -54,7 +57,8 @@ public class UserController {
             }
 
             String role = user.getRole();
-            String accessToken = JWTUtil.generateAccessToken(email, role); //Short-lived access token
+            String username = user.getUsername();
+            String accessToken = JWTUtil.generateAccessToken(email, role, username); //Short-lived access token
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", accessToken);
 
@@ -70,16 +74,25 @@ public class UserController {
         }
     }
 
+    @GetMapping("/getall")
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserEntity> users = userRepository.findAll();
+        List<UserResponseDTO> response = users.stream()
+                .map(user -> new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail(), user.getRole()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
 
+    //TODO kanske sätta denna i en JWTController?
     //Giving the user a new accesstoken looking at the refreshtoken
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> request) throws JOSEException, ParseException {
         String refreshToken = request.get("refreshToken");
 
         if (jwtUtil.validateToken(refreshToken)) {
-            String email = jwtUtil.extractUsername(refreshToken);
+            String email = jwtUtil.extractEmail(refreshToken);
             //Generate new access token
-            String newAccessToken = JWTUtil.generateAccessToken(email, "userRole");
+            String newAccessToken = JWTUtil.generateAccessToken(email, "userRole", "username");
             return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid refresh token"));

@@ -32,6 +32,13 @@ data class MessageDTO(
     val deadline: String?
 )
 
+data class UserDTO(
+    val id: Int,
+    val username: String,
+    val email: String,
+    val role: String
+)
+
 interface ApiService {
 
 
@@ -43,6 +50,9 @@ interface ApiService {
 
     @POST("/users/register")
     suspend fun register(@Body registerRequest: UserRegisterRequest): MessageResponse
+
+    @GET("/users/getall")
+    suspend fun getAllUsers(): List<UserDTO>
 
     @POST("/messages/create")
     suspend fun createMessage(
@@ -62,6 +72,11 @@ interface ApiService {
 
     @GET("/tasks/view")
     suspend fun viewTasks(): List<TaskDTO>
+
+    @POST("/tasks/changestatus")
+    suspend fun changeTaskStatus(
+        @Body request: TaskDTO,
+    ): MessageResponse
 
     @GET("/users/ping")
     fun ping(): Call<PingResponse>

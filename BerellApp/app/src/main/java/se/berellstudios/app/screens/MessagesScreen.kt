@@ -12,6 +12,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +36,9 @@ import java.time.format.DateTimeFormatter
 //Controlling and showing the messages section of our code
 @Composable
 fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
-    mainViewModel.viewMessages()
+    LaunchedEffect(Unit) {
+        mainViewModel.viewMessages()
+    }
     var message by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }

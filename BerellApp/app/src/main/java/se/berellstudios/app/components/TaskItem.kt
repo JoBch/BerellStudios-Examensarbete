@@ -1,5 +1,6 @@
 package se.berellstudios.app.components
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Color.Companion.Cyan
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.TaskDTO
 import se.berellstudios.app.screens.isValidEmail
 import se.berellstudios.app.ui.theme.Pink40
@@ -43,7 +45,7 @@ import java.util.Date
 
 //Itemsen är lägst
 @Composable
-fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier) {
+fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier, mainViewModel: MainViewModel, context: Context) {
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Format för datum
 
     val deadlineDate = try {
@@ -116,6 +118,9 @@ fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier) {
                 .align(Alignment.BottomCenter) // Placera knappen längst ner i boxen
                 .padding(bottom = 8.dp),
             onClick = {
+                //TODO får nog skicka med taskDTO för att det ska funka med backend
+                //Behöver id och status i alla fall, den ska bara skickas upp ett steg, todo->ongoing->done->delete
+                mainViewModel.changeTaskStatus(context, task)
                 // HÄR SKA DEN BYTA STATUS PÅ KORT
                 Log.i("Andreas", "TaskItem: Knappen funkar")
             }

@@ -43,7 +43,7 @@ public class MessageController {
             if (!jwtUtil.validateToken(jwtToken)) {
                 throw new Exception("Invalid token");
             }
-            String username = jwtUtil.extractUsername(jwtToken);
+            String username = jwtUtil.extractEmail(jwtToken);
             UserEntity user = userRepository.findByEmail(username);
 
             //Checking the token

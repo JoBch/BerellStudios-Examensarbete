@@ -1,6 +1,7 @@
 package se.berellstudios.server.controller;
 
 import exceptions.JwtExceptions;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +16,7 @@ import se.berellstudios.server.utils.JWTUtil;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -48,16 +46,23 @@ public class TaskController {
             if (!jwtUtil.validateToken(jwtToken)) {
                 throw new Exception("Invalid token");
             }
-            String username = jwtUtil.extractUsername(jwtToken);
-            UserEntity user = userRepository.findByEmail(username);
+            String email = jwtUtil.extractEmail(jwtToken);
+            UserEntity user = userRepository.findByEmail(email);
 
             jwtUtil.jwtCheck(token, user);
             String encryptedMessage = aesUtil.encryptMessage(taskDTO.getMessageContent());
 
+            Optional<UserEntity> assignedToUser = userRepository.findById(taskDTO.getUser_id());
+
             //Create and save the task entity
             TaskEntity taskEntity = new TaskEntity();
             taskEntity.setMessageContent(encryptedMessage);
-            taskEntity.setUser(user);
+            assignedToUser.ifPresentOrElse(
+                    taskEntity::setUser,  //Set to assignedToUser if present
+                    () -> {
+                        taskEntity.setUser(user); //Else set so user who created the task
+                    }
+            );
             taskEntity.setStatus(taskDTO.getStatus());
             taskEntity.setDeadline(taskDTO.getDeadline());
             taskEntity.setCreatedTime(LocalDateTime.now());
@@ -88,7 +93,7 @@ public class TaskController {
                 throw new Exception("Invalid token");
             }
 
-            String userEmail = jwtUtil.extractUsername(jwtToken);
+            String userEmail = jwtUtil.extractEmail(jwtToken);
             UserEntity user = userRepository.findByEmail(userEmail);
             jwtUtil.jwtCheck(token, user);
 
@@ -124,7 +129,7 @@ public class TaskController {
                 throw new Exception("Invalid token");
             }
 
-            String userEmail = jwtUtil.extractUsername(jwtToken);
+            String userEmail = jwtUtil.extractEmail(jwtToken);
             UserEntity user = userRepository.findByEmail(userEmail);
             jwtUtil.jwtCheck(token, user);
 
@@ -147,6 +152,49 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @PostMapping("/changestatus")
+    @Transactional
+    public ResponseEntity<Map<String, String>> changeStatusOnTasks(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskDTO) {
+
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                throw new Exception("Invalid token");
+            }
+            String username = jwtUtil.extractEmail(jwtToken);
+            UserEntity user = userRepository.findByEmail(username);
+
+            jwtUtil.jwtCheck(token, user);
+
+            // Find the task entity by ID
+            TaskEntity taskEntity = taskRepository.findById((long) taskDTO.getId())
+                    .orElseThrow(() -> new Exception("Task not found"));
+
+            if (Objects.equals(taskEntity.getStatus(), "todo")) {
+                taskRepository.updateStatusById(taskDTO.getId(), "ongoing");
+            } else if (Objects.equals(taskEntity.getStatus(), "ongoing")) {
+                taskRepository.updateStatusById(taskDTO.getId(), "done");
+            } else if (Objects.equals(taskEntity.getStatus(), "done")) {
+                taskRepository.deleteById((long) taskDTO.getId());
+                response.put("message", "Task deleted!");
+                return ResponseEntity.ok(response);
+            }
+
+            response.put("message", "Task status updated successfully!");
+            return ResponseEntity.ok(response);
+        } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
+                 JwtExceptions.UserNotFoundException | ParseException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 
     //Duplicated code so created this for readability
     private ResponseEntity<?> getResponseEntity(List<TaskEntity> taskEntities) {

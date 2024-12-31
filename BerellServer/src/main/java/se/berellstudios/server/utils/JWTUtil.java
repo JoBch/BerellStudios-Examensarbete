@@ -15,7 +15,7 @@ import java.util.Date;
 public class JWTUtil {
 
     //Accesstoken for the usual stuff
-    public static String generateAccessToken(String email, String role) throws JOSEException {
+    public static String generateAccessToken(String email, String role, String username) throws JOSEException {
         final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
         final long TOKEN_VALIDITY = 100 * 60 * 60 * 10; //1 hour
 
@@ -26,6 +26,7 @@ public class JWTUtil {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(email)
                 .claim("role", role) //Include the user's role
+                .claim("username", username)
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() + TOKEN_VALIDITY))
                 .build();
@@ -76,7 +77,7 @@ public class JWTUtil {
     }
 
     //Extract the username (subject) from the JWT token
-    public String extractUsername(String token) throws java.text.ParseException {
+    public String extractEmail(String token) throws java.text.ParseException {
         JWSObject jwsObject = JWSObject.parse(token);
         JWTClaimsSet claimsSet = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
         return claimsSet.getSubject();

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +29,9 @@ import se.berellstudios.app.ui.theme.BerellAppTheme
 //Where we land if loggedin=true
 @Composable
 fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
-    mainViewModel.viewStarterTasks()
+    LaunchedEffect (Unit){
+        mainViewModel.viewStarterTasks()
+    }
     val context: Context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
@@ -40,6 +43,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
+<<<<<<< Updated upstream
                     // Row för välkomsttext och meny
                     Row(
                         modifier = Modifier
@@ -62,6 +66,15 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     // Viewing the three tasks with the nearest deadline
                     TaskList(viewModel = mainViewModel)
+=======
+                    DropdownMenuWithDetails(navController, mainViewModel)
+
+                    Text("Welcome, " + RetrofitClient.getUsername(context) + ", you're logged in! Role: " + RetrofitClient.getRole(context))
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    //Viewing the three tasks with the nearest deadline
+                    TaskList(mainViewModel, context)
+>>>>>>> Stashed changes
                 }
             }
         }

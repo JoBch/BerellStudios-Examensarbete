@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.contracts.Effect
 
 class MainViewModel : ViewModel() {
 
@@ -22,8 +23,8 @@ class MainViewModel : ViewModel() {
     private val _tasks = MutableStateFlow<List<TaskDTO>>(emptyList())
     val tasks: StateFlow<List<TaskDTO>> = _tasks
 
-    private val _errorMessage = MutableStateFlow<String>("")
-    val errorMessage: StateFlow<String> get() = _errorMessage
+    private val _users = MutableStateFlow<List<UserDTO>>(emptyList())
+    val users: StateFlow<List<UserDTO>> = _users
 
     fun login(
         context: Context,
@@ -50,7 +51,10 @@ class MainViewModel : ViewModel() {
 
                     val role = JWTUtils.getClaim(accessToken, "role")
                     RetrofitClient.setRole(context, role)
+                    val username = JWTUtils.getClaim(accessToken, "username")
+                    RetrofitClient.setUsername(context, username)
 
+                    println("Username: " + RetrofitClient.getUsername(context))
                     Log.i("Tokens", "AccessToken: $accessToken --- RefreshToken $refreshToken")
                     onResult("Success")
                 } else {
@@ -131,6 +135,22 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun changeTaskStatus(context: Context, task: TaskDTO) {
+        viewModelScope.launch {
+            try {
+                //Create the task through the API
+                val response = RetrofitClient.apiService.changeTaskStatus(task)
+                Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+                //After creating the task, reload the task list
+                println("Changed task: $task")
+                viewTasks()
+            } catch (e: Exception) {
+                println("Changed task: $task")
+                println("Failed to change task: ${e.message}")
+            }
+        }
+    }
+
     fun viewStarterTasks() {
         viewModelScope.launch {
             try {
@@ -140,6 +160,16 @@ class MainViewModel : ViewModel() {
             } catch (e: Exception) {
                 println("Failed to fetch tasks: ${e.message}")
             }
+        }
+    }
+
+    suspend fun getAllUsers(){
+        try {
+            val response = RetrofitClient.apiService.getAllUsers()
+            _users.value = response
+            println("Users retrieved: ${_users.value}")
+        }catch (e: Exception) {
+            println("Failed ot fetch users: ${e.message}")
         }
     }
 

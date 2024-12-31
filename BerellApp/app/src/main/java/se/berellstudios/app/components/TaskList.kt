@@ -1,12 +1,12 @@
 package se.berellstudios.app.components
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,13 +14,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
+import se.berellstudios.app.TaskDTO
 
 //Listan är överst
 @Composable
-fun TaskList(viewModel: MainViewModel) {
-    val tasks by viewModel.tasks.collectAsState()
+fun TaskList(mainViewModel: MainViewModel, context: Context) {
+    val tasks by mainViewModel.tasks.collectAsState()
 
-    //Group tasks by their status
+    // Group tasks by their status
     val groupedTasks = tasks.groupBy { it.status }
 
     Column(
@@ -33,20 +34,18 @@ fun TaskList(viewModel: MainViewModel) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        //LazyRow to display the statuses in separate columns
-        //TODO kanske ta bort row här så de ligger under varandra istället?
+        // LazyRow to display statuses in separate columns
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            //Iterate over the statuses and create a column for each status
-            items(groupedTasks.keys.toList()) { status ->
-                if (groupedTasks[status].isNullOrEmpty()) {
-                    Text(text = "No tasks for $status")
-                } else {
+            groupedTasks.keys.forEach { status ->
+                item {
                     TaskColumn(
                         status = status,
-                        tasks = groupedTasks[status] ?: emptyList()
+                        tasks = groupedTasks[status] ?: emptyList(),
+                        mainViewModel = mainViewModel,
+                        context = context
                     )
                 }
             }

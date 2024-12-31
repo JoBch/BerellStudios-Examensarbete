@@ -103,6 +103,16 @@ object RetrofitClient {
         jwtToken = getAccessToken(context)
     }
 
+    fun setUsername(context: Context, username: String?) {
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        sharedPref.edit().putString("username", username).apply()
+    }
+
+    fun getUsername(context: Context): String? {
+        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        return sharedPref.getString("username", null)
+    }
+
     fun setRole(context: Context, role: String?) {
         val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         sharedPref.edit().putString("user_role", role).apply()
