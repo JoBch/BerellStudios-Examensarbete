@@ -13,6 +13,7 @@ public class UserDTO {
     private String password;
     private String role;
 
+    //Used for login and using data within server
     public UserDTO(int id, String password, String username, String role) {
         this.role = role;
         this.password = password;

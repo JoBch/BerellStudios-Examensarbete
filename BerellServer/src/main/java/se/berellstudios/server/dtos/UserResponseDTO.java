@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-//Need this responseDTO so we dont send the username back to the frontend
 public class UserResponseDTO {
 
     private int id;
@@ -14,6 +13,7 @@ public class UserResponseDTO {
     private String password;
     private String role;
 
+    //Used to send userdata excluding password to the frontend for security reasons
     public UserResponseDTO(int id, String username, String email, String role) {
         this.id = id;
         this.username = username;

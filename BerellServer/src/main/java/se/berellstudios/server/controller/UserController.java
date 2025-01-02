@@ -12,7 +12,6 @@ import se.berellstudios.server.repositories.UserRepository;
 import se.berellstudios.server.services.UserService;
 import se.berellstudios.server.utils.JWTUtil;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +23,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private JWTUtil jwtUtil;
 
     @Autowired
     private UserRepository userRepository;
@@ -42,7 +38,7 @@ public class UserController {
         }
     }
 
-    //Logging in against db and generating tokens
+    //Logging in against DB and generating tokens
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, Object> credentials, HttpSession session) throws JOSEException {
         String email = (String) credentials.get("email");
@@ -74,6 +70,7 @@ public class UserController {
         }
     }
 
+    //Fetching all users from DB, so we can populate a dropdown and set user to tasks
     @GetMapping("/getall")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
@@ -83,25 +80,4 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    //TODO kanske sätta denna i en JWTController?
-    //Giving the user a new accesstoken looking at the refreshtoken
-    @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> request) throws JOSEException, ParseException {
-        String refreshToken = request.get("refreshToken");
-
-        if (jwtUtil.validateToken(refreshToken)) {
-            String email = jwtUtil.extractEmail(refreshToken);
-            //Generate new access token
-            String newAccessToken = JWTUtil.generateAccessToken(email, "userRole", "username");
-            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid refresh token"));
-        }
-    }
-
-    //This returns a simple response when the server is up and reachable
-    @GetMapping("/ping")
-    public Map<String, String> ping() {
-        return Map.of("message", "Server is running and connected!");
-    }
 }

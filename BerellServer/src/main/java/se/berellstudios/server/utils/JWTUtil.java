@@ -5,18 +5,31 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import exceptions.JwtExceptions;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import se.berellstudios.server.entities.UserEntity;
 
 import java.text.ParseException;
 import java.util.Date;
 
+@Getter
 @Component
+//Accessing secret key in application.properties
+@ConfigurationProperties(prefix = "jwt")
 public class JWTUtil {
+
+    private static String SECRET_KEY;
+
+    //Accessing secret key in application.properties
+    public void setSecretKey(String secretKey) {
+        SECRET_KEY = secretKey;
+    }
+
 
     //Accesstoken for the usual stuff
     public static String generateAccessToken(String email, String role, String username) throws JOSEException {
-        final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
         final long TOKEN_VALIDITY = 100 * 60 * 60 * 10; //1 hour
 
         //Create the HMAC signer with the secret key
@@ -43,8 +56,6 @@ public class JWTUtil {
 
     //RefreshToken to keep the user logged in adn using it to generate new ATs if needed
     public static String generateRefreshToken(String email) throws JOSEException {
-        //TODO ändra key
-        final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
         final long REFRESH_TOKEN_VALIDITY = 1000L * 60 * 60 * 24 * 30; //30 days
 
         JWSSigner signer = new MACSigner(SECRET_KEY.getBytes());
@@ -66,7 +77,6 @@ public class JWTUtil {
 
     //Validate and parse the JWT token
     public boolean validateToken(String token) {
-        final String SECRET_KEY = "RmV2dDJDZzJ5MkVma1B4R3lNdE1qYzBHRnBzYklBUTA=";
         try {
             JWSObject jwsObject = JWSObject.parse(token);
             JWSVerifier verifier = new MACVerifier(SECRET_KEY.getBytes());
@@ -99,7 +109,6 @@ public class JWTUtil {
     }
 
     //Checking the JwtToken against several statements.
-    //TODO funkar denna verkligen som planerat?
     public void jwtCheck(String token, UserEntity user) throws JwtExceptions.InvalidTokenException, JwtExceptions.ExpiredTokenException,
             JwtExceptions.UserNotFoundException, ParseException, JOSEException {
         if (token == null || !token.startsWith("Bearer ")) {

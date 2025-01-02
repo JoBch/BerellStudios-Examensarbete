@@ -16,7 +16,10 @@ import se.berellstudios.server.utils.JWTUtil;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,7 +38,7 @@ public class TaskController {
     @Autowired
     private AESUtil aesUtil;
 
-    //Create a new task
+    //Create a new task, encrypt the taskmessage
     @PostMapping("/create")
     public ResponseEntity<Map<String, String>> createTasks(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskDTO) {
 
@@ -52,17 +55,12 @@ public class TaskController {
             jwtUtil.jwtCheck(token, user);
             String encryptedMessage = aesUtil.encryptMessage(taskDTO.getMessageContent());
 
-            Optional<UserEntity> assignedToUser = userRepository.findById(taskDTO.getUser_id());
+            UserEntity assignedToUser = userRepository.findById(taskDTO.getUser_id());
 
             //Create and save the task entity
             TaskEntity taskEntity = new TaskEntity();
             taskEntity.setMessageContent(encryptedMessage);
-            assignedToUser.ifPresentOrElse(
-                    taskEntity::setUser,  //Set to assignedToUser if present
-                    () -> {
-                        taskEntity.setUser(user); //Else set so user who created the task
-                    }
-            );
+            taskEntity.setUser(assignedToUser);
             taskEntity.setStatus(taskDTO.getStatus());
             taskEntity.setDeadline(taskDTO.getDeadline());
             taskEntity.setCreatedTime(LocalDateTime.now());
@@ -82,7 +80,7 @@ public class TaskController {
         }
     }
 
-    //View tasks depending on if user.role = "user" or "admin"
+    //View tasks depending on if user.role = "user" show tasks related to user or "admin" show all tasks
     @GetMapping("/view")
     public ResponseEntity<?> viewTasks(@RequestHeader("Authorization") String token) {
         Map<String, String> response = new HashMap<>();
@@ -97,7 +95,7 @@ public class TaskController {
             UserEntity user = userRepository.findByEmail(userEmail);
             jwtUtil.jwtCheck(token, user);
 
-            //Determine tasks based on role
+            //Determine which tasks to fetch based on role
             List<TaskEntity> taskEntities;
             if (Objects.equals(jwtUtil.extractRole(jwtToken), "user")) {
                 taskEntities = taskRepository.findAllByUserIdOrderByDeadlineAsc(user.getId()); //User-specific tasks
@@ -169,10 +167,11 @@ public class TaskController {
 
             jwtUtil.jwtCheck(token, user);
 
-            // Find the task entity by ID
+            //Find the task entity by ID
             TaskEntity taskEntity = taskRepository.findById((long) taskDTO.getId())
                     .orElseThrow(() -> new Exception("Task not found"));
 
+            //Checking the current status of the task, so we can set the status to the one "above" it or delete it if status=="done"
             if (Objects.equals(taskEntity.getStatus(), "todo")) {
                 taskRepository.updateStatusById(taskDTO.getId(), "ongoing");
             } else if (Objects.equals(taskEntity.getStatus(), "ongoing")) {

@@ -1,6 +1,5 @@
 package se.berellstudios.app.components
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -26,9 +22,8 @@ import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
 
 @Composable
-fun MessageList(viewModel: MainViewModel) {
-    val messages by viewModel.messages.collectAsState()
-    var deadline by remember { mutableStateOf<String?>(null) }
+fun MessageList(mainViewModel: MainViewModel) {
+    val messages by mainViewModel.messages.collectAsState()
     val context = LocalContext.current
     //Building the messagelist using the stateflow populated in MVM
     Column(
@@ -45,9 +40,9 @@ fun MessageList(viewModel: MainViewModel) {
         LazyColumn {
             //Iterating through the messages from MVM and populating the LazyColumn 1 by 1
             items(messages) { message ->
-                    //SKAPA CARDS HÄR SOM INNEHÅLLER MESSAGE
+                //SKAPA CARDS HÄR SOM INNEHÅLLER MESSAGE
                 Text(
-                    text = "" + message,
+                    text = "" + message.message,
                     modifier = Modifier //TODO snygga till "CSS"
                         .fillMaxWidth()
                         .padding(8.dp)
@@ -56,7 +51,7 @@ fun MessageList(viewModel: MainViewModel) {
                 )
                 IconButton(
                     onClick = {
-                        Toast.makeText(context, "Jag kan inte bli borttagen än", Toast.LENGTH_SHORT).show()
+                        mainViewModel.deleteMessage(context, message)
                     }
                 ) {
                     Icon(
@@ -66,14 +61,14 @@ fun MessageList(viewModel: MainViewModel) {
                     )
                 }
 
-                    Text(
-                        text = "Deadline: $deadline",
-                        color = Color.DarkGray,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
+                Text(
+                    text = "Deadline: ${message.deadline}",
+                    color = Color.DarkGray,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
+
         }
     }
+}
 

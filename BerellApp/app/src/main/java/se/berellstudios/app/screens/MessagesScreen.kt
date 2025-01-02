@@ -53,22 +53,26 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(16.dp)
-                ) { Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Messages",
-                        modifier = Modifier.weight(1f) // Texten fyller utrymmet horisontellt
-                    )
-                    Box(
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        DropdownMenuWithDetails(navController, mainViewModel) // Menyn hamnar till höger
+                        Text(
+                            text = "Messages",
+                            modifier = Modifier.weight(1f) // Texten fyller utrymmet horisontellt
+                        )
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        ) {
+                            DropdownMenuWithDetails(
+                                navController,
+                                mainViewModel
+                            ) // Menyn hamnar till höger
+                        }
                     }
-                }
 
                     if (RetrofitClient.getRole(context) == "admin") {
                         OutlinedTextField(
@@ -125,7 +129,7 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                     }
 
                     //Displaying messages
-                    MessageList(viewModel = mainViewModel)
+                    MessageList(mainViewModel = mainViewModel)
                 }
             }
         }

@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
-    TaskEntity findTaskById(int taskId);
-
     List<TaskEntity> findAllByOrderByDeadlineAsc();
 
     List<TaskEntity> findAllByUserIdOrderByDeadlineAsc(int user_id);
@@ -20,6 +18,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     List<TaskEntity> findTop3ByOrderByDeadlineAsc();
 
+    //Custom query
     @Modifying
     @Query("UPDATE tasks t SET t.status = :status WHERE t.id = :id")
     void updateStatusById(@Param("id") int id, @Param("status") String status);

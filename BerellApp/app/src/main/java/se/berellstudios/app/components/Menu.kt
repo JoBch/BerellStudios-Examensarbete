@@ -35,7 +35,6 @@ fun showToast(context: Context, message: String) {
 @Composable
 fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
-    mainViewModel.viewStarterTasks()
     val context: Context = LocalContext.current
 
     Box {

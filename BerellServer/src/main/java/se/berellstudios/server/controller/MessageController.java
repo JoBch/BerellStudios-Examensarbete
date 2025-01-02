@@ -2,6 +2,7 @@ package se.berellstudios.server.controller;
 
 import exceptions.JwtExceptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.berellstudios.server.dtos.MessageDTO;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/messages")
@@ -34,6 +36,7 @@ public class MessageController {
     @Autowired
     private AESUtil aesUtil;
 
+    //Adding new encrypted messages to the DB
     @PostMapping("/create")
     public ResponseEntity<?> createMessage(@RequestHeader("Authorization") String token, @RequestBody MessageDTO messageDTO) {
         Map<String, String> response = new HashMap<>();
@@ -71,26 +74,82 @@ public class MessageController {
         }
     }
 
-
+    //Getting and decrypting messages form the DB
     @GetMapping("/view")
-    public List<String> viewMessages(@RequestHeader("Authorization") String token) throws Exception {
-        String jwtToken = token.substring(7);
-        if (!jwtUtil.validateToken(jwtToken)) {
-            return List.of("Invalid token");
+    public ResponseEntity<?> viewMessages(@RequestHeader("Authorization") String token) throws Exception {
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                throw new Exception("Invalid token");
+            }
+
+            String userEmail = jwtUtil.extractEmail(jwtToken);
+            UserEntity user = userRepository.findByEmail(userEmail);
+            jwtUtil.jwtCheck(token, user);
+
+            List<MessageEntity> messageEntities;
+            messageEntities = messageRepository.findAllByOrderByDeadlineAsc();
+
+            //Map TaskEntity to TaskDTO
+            return getResponseEntity(messageEntities);
+        } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
+                 JwtExceptions.UserNotFoundException | ParseException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
-        List<MessageEntity> messageEntities;
-        messageEntities = messageRepository.findAllByOrderByDeadlineAsc();
-
-        //Decrypt each message before returning
-        return messageEntities.stream()
-                .map(msg -> {
-                    try {
-                        return aesUtil.decryptMessage(msg.getMessageContent());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return "Error decrypting message";
-                    }
-                }).toList();
     }
+
+    //Deleting message from DB
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteMessage(@RequestHeader("Authorization") String token, @RequestBody MessageDTO messageDTO) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                throw new Exception("Invalid token");
+            }
+            String username = jwtUtil.extractEmail(jwtToken);
+            UserEntity user = userRepository.findByEmail(username);
+
+            jwtUtil.jwtCheck(token, user);
+
+            messageRepository.deleteById((long) messageDTO.getId());
+            response.put("message", "Message deleted!");
+            return ResponseEntity.ok(response);
+
+        } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
+                 JwtExceptions.UserNotFoundException | ParseException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    private ResponseEntity<?> getResponseEntity(List<MessageEntity> messageEntities) {
+        List<MessageDTO> messageDTOs = messageEntities.stream()
+                .map(task -> {
+                    MessageDTO messageDTO = new MessageDTO();
+                    messageDTO.setId(task.getId());
+                    try {
+                        messageDTO.setMessage(aesUtil.decryptMessage(task.getMessageContent())); //Decrypt message
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    messageDTO.setDeadline(task.getDeadline());
+                    messageDTO.setDeadline(task.getCreatedTime());
+                    messageDTO.setUser_id(task.getUser().getId());
+                    return messageDTO;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(messageDTOs);
+    }
+
 }

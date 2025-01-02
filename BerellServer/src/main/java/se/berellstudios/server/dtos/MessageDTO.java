@@ -11,6 +11,7 @@ public class MessageDTO {
 
     private int id;
     private String message;
+    private LocalDateTime createdAt;
     private LocalDateTime deadline;
     private int user_id;
 

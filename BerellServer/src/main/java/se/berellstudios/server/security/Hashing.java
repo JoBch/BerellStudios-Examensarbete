@@ -2,7 +2,7 @@ package se.berellstudios.server.security;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-//Hashing passwords using BCrypt
+//Hashing passwords using BCrypt library from Spring-Security
 public class Hashing {
     private final BCryptPasswordEncoder passwordEncoder;
 

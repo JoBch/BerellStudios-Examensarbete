@@ -1,7 +1,6 @@
 package se.berellstudios.app.components
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,13 +37,19 @@ import java.time.format.DateTimeFormatter
 
 //Itemsen är lägst
 @Composable
-fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier, mainViewModel: MainViewModel, context: Context) {
+fun TaskItem(
+    task: TaskDTO,
+    modifier: Modifier = Modifier,
+    mainViewModel: MainViewModel,
+    context: Context
+) {
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Format för datum
 
     val deadlineDate = try {
         task.deadline?.let { deadline ->
             // Omvandla deadline från String till LocalDateTime
-            LocalDateTime.parse(deadline.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate()
+            LocalDateTime.parse(deadline.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                .toLocalDate()
         }
     } catch (e: Exception) {
         null // Hantera eventuell parse-error
@@ -112,11 +117,7 @@ fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier, mainViewModel: MainVi
                 .padding(bottom = 8.dp, top = 8.dp),
 
             onClick = {
-                //TODO får nog skicka med taskDTO för att det ska funka med backend
-                //Behöver id och status i alla fall, den ska bara skickas upp ett steg, todo->ongoing->done->delete
                 mainViewModel.changeTaskStatus(context, task)
-                // HÄR SKA DEN BYTA STATUS PÅ KORT
-                Log.i("Andreas", "TaskItem: Knappen funkar")
             }
         ) {
             val buttonText = when (task.status) {

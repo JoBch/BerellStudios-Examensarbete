@@ -6,6 +6,8 @@ import se.berellstudios.server.entities.UserEntity;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
     UserEntity findByEmail(String email);
-    Optional<UserEntity> findById(int userId);
+
+    UserEntity findById(int userId);
 }

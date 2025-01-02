@@ -10,16 +10,14 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import okhttp3.internal.concurrent.Task
-import kotlin.contracts.Effect
 
 class MainViewModel : ViewModel() {
 
     private val _loggedIn = MutableLiveData(false)
     val loggedIn: LiveData<Boolean> get() = _loggedIn
 
-    private val _messages = MutableStateFlow<List<String>>(emptyList())
-    val messages: StateFlow<List<String>> = _messages
+    private val _messages = MutableStateFlow<List<MessageDTO>>(emptyList())
+    val messages: StateFlow<List<MessageDTO>> = _messages
 
     private val _tasks = MutableStateFlow<List<TaskDTO>>(emptyList())
     val tasks: StateFlow<List<TaskDTO>> = _tasks
@@ -83,6 +81,18 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun deleteMessage(context: Context, message: MessageDTO) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.deleteMessage(message)
+                Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+                viewMessages()
+            } catch (e: Exception) {
+                println("Failed to delete message: ${e.message}")
+            }
+        }
+    }
+
     fun createMessage(context: Context, message: MessageDTO) {
         viewModelScope.launch {
             try {
@@ -104,6 +114,7 @@ class MainViewModel : ViewModel() {
                 val response = RetrofitClient.apiService.viewMessages()
                 //Setting the StateFlow so we can send the data to the activity
                 _messages.value = response
+                println("Messages fetched: ${_messages.value}")
             } catch (e: Exception) {
                 println("Failed to fetch messages: ${e.message}")
             }
@@ -164,12 +175,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    suspend fun getAllUsers(){
+    suspend fun getAllUsers() {
         try {
             val response = RetrofitClient.apiService.getAllUsers()
             _users.value = response
             println("Users retrieved: ${_users.value}")
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             println("Failed ot fetch users: ${e.message}")
         }
     }

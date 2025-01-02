@@ -19,12 +19,9 @@ public class UserService {
         this.hashing = new Hashing();
     }
 
-    public UserEntity findUserById(int id) {
-        return userRepository.findById((long) id).orElse(null);
-    }
-
     //Adding user to db
     public void registerUser(UserEntity user) {
+        //If email already exist
         if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new IllegalArgumentException("Error!");
         }
@@ -36,6 +33,7 @@ public class UserService {
     //Checking db to validate login
     public boolean loginUser(String email, String password, HttpSession session) {
         UserEntity userEntity = userRepository.findByEmail(email);
+        //Returning false if the credentials are wrong
         if (userEntity == null || !hashing.verifyPassword(password, userEntity.getPassword())) {
             return false;
         }

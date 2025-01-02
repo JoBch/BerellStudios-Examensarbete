@@ -45,7 +45,7 @@ interface ApiService {
     @POST("/users/login")
     suspend fun login(@Body loginRequest: UserLoginRequest): LoginResponse
 
-    @POST("/users/refresh")
+    @POST("/jwt/refresh")
     fun refreshToken(@Body refreshToken: Map<String, String>): Call<LoginResponse>
 
     @POST("/users/register")
@@ -54,13 +54,18 @@ interface ApiService {
     @GET("/users/getall")
     suspend fun getAllUsers(): List<UserDTO>
 
+    @POST("/messages/delete")
+    suspend fun deleteMessage(
+        @Body request: MessageDTO,
+    ): MessageResponse
+
     @POST("/messages/create")
     suspend fun createMessage(
         @Body request: MessageDTO,
     ): MessageResponse
 
     @GET("/messages/view")
-    suspend fun viewMessages(): List<String>
+    suspend fun viewMessages(): List<MessageDTO>
 
     @POST("/tasks/create")
     suspend fun createTask(
