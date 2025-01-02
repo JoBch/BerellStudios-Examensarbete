@@ -2,7 +2,6 @@ package se.berellstudios.app.components
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,22 +18,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Cyan
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.TaskDTO
-import se.berellstudios.app.screens.isValidEmail
-import se.berellstudios.app.ui.theme.Pink40
-import se.berellstudios.app.ui.theme.PurpleGrey40
 import se.berellstudios.app.ui.theme.Pink80
-import se.berellstudios.app.ui.theme.Purple40
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 //val gradientColors = listOf(Cyan, PurpleGrey40, Pink40 /*...*/)
 /*style = TextStyle(

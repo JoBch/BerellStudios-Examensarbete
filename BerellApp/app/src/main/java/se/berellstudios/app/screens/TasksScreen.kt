@@ -2,26 +2,22 @@ package se.berellstudios.app.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,13 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.RetrofitClient
-import se.berellstudios.app.TaskDTO
-import se.berellstudios.app.UserDTO
+import se.berellstudios.app.components.DropdownMenuWithDetails
+import se.berellstudios.app.components.TaskCreationDialog
 import se.berellstudios.app.components.TaskList
-import se.berellstudios.app.components.showDateTimePicker
 import se.berellstudios.app.ui.theme.BerellAppTheme
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 enum class TaskStatus(val dbValue: String, val displayName: String) {
     TODO("todo", "ToDo"),
@@ -48,183 +41,87 @@ enum class TaskStatus(val dbValue: String, val displayName: String) {
 
 @Composable
 fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
+    mainViewModel.viewTasks()
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(TaskStatus.ONGOING) }
+    val users by mainViewModel.users.collectAsState()
+
+    // Ladda användare när skärmen laddas
     LaunchedEffect(Unit) {
-        mainViewModel.viewTasks()
         mainViewModel.getAllUsers()
     }
-    val priority = intArrayOf(1, 2, 3)
-    val context = LocalContext.current
-    val userList by mainViewModel.users.collectAsState()
-    var userExpanded by remember { mutableStateOf(false) }
-    var selectedUser by remember { mutableStateOf<UserDTO?>(null) }
-    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
-    var deadline by remember { mutableStateOf<String?>(null) }
-    var taskMessage by remember { mutableStateOf("") }
-    var statusExpanded by remember { mutableStateOf(false) }
-    var priorityExpanded by remember { mutableStateOf(false) }
-    var selectedStatus by remember { mutableStateOf(TaskStatus.TODO) }
-    var selectedPriority by remember { mutableIntStateOf(3) }
 
-    //fetching when the composable is launched
-
-
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize()) {
         BerellAppTheme {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .padding(16.dp)
                 ) {
-                    Text("Tasks", style = MaterialTheme.typography.headlineMedium)
+                    Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                        Text("Tasks", style = MaterialTheme.typography.headlineMedium)
+
+                    Box(
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    ) {
+                        DropdownMenuWithDetails(navController, mainViewModel) // Menyn hamnar till höger
+                    }
+                }
+                    // Header och skapa ny task-knapp
 
                     if (RetrofitClient.getRole(context) == "admin") {
-                        OutlinedTextField(
-                            value = taskMessage,
-                            onValueChange = { taskMessage = it },
-                            label = { Text("Enter task description") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Button(
-                            onClick = { statusExpanded = !statusExpanded },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Status: ${selectedStatus.displayName}")
+                        Button(onClick = { showDialog = true }) {
+                            Text("Create new task")
                         }
-                        //TODO se till så att dessa hamnar där vi vill
-                        DropdownMenu(
-                            expanded = statusExpanded,
-                            onDismissRequest = { statusExpanded = false }
-                        ) {
-                            TaskStatus.entries.forEach { status ->
-                                DropdownMenuItem(
-                                    text = { Text(status.displayName) },
-                                    onClick = {
-                                        selectedStatus = status
-                                        statusExpanded = false
-                                    },
-                                    leadingIcon = {
-                                        if (status == selectedStatus) {
-                                            Icon(
-                                                imageVector = Icons.Default.Check,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        Button(
-                            onClick = { priorityExpanded = !priorityExpanded },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Prio: $selectedPriority")
-                        }
-                        DropdownMenu(
-                            expanded = priorityExpanded,
-                            onDismissRequest = { priorityExpanded = false }
-                        ) {
-                            priority.forEach { prio ->
-                                DropdownMenuItem(
-                                    text = { Text("" + prio) },
-                                    onClick = {
-                                        selectedPriority = prio
-                                        priorityExpanded = false
-                                    },
-                                    leadingIcon = {
-                                        if (prio == selectedPriority) {
-                                            Icon(
-                                                imageVector = Icons.Default.Check,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        Button(
-                            onClick = { userExpanded = !userExpanded },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Assign to: ${selectedUser?.username ?: "Select User"}")
-                        }
-
-                        DropdownMenu(
-                            expanded = userExpanded,
-                            onDismissRequest = { userExpanded = false }
-                        ) {
-                            //Looping through users and populating the list
-                            userList.forEach { user ->
-                                DropdownMenuItem(
-                                    text = { Text("${user.username} (${user.email})") },
-                                    onClick = {
-                                        selectedUser = user
-                                        userExpanded = false
-                                    }
-                                )
-                            }
-                        }
-
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(
-                            onClick = {
-                                showDateTimePicker(context) { dateTime ->
-                                    selectedDateTime = dateTime
-                                    deadline =
-                                        dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Pick a Date and Time")
-                        }
-
-                        Text(
-                            text = "Selected Deadline: ${deadline ?: "None"}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(
-                            onClick = {
-                                //Create task
-                                val task = TaskDTO(
-                                    id = null, //Set by the server
-                                    messageContent = taskMessage,
-                                    status = selectedStatus.dbValue,
-                                    deadline = deadline,
-                                    priority = selectedPriority,
-                                    createdTime = "", //Set by the server
-                                    user_id = selectedUser?.id
-                                )
-                                mainViewModel.createTask(context, task)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Create Task")
-                        }
-
                     }
+
+                    // Tabbar för Task Status
+                    val tabs = TaskStatus.entries
+                    TabRow(selectedTabIndex = tabs.indexOf(selectedTab)) {
+                        tabs.forEach { tab ->
+                            Tab(
+                                selected = selectedTab == tab,
+                                onClick = { selectedTab = tab },
+                                text = { Text(tab.displayName) }
+                            )
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Button(
-                        onClick = { navController.navigateUp() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    // Visa uppgifter för vald status
+                    when (selectedTab) {
+                        TaskStatus.TODO -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.TODO.dbValue)
+                        TaskStatus.ONGOING -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.ONGOING.dbValue)
+                        TaskStatus.DONE -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.DONE.dbValue)
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Tillbaka till Landing
+                    Button(onClick = { navController.navigateUp() }, modifier = Modifier.fillMaxWidth()) {
                         Text("Back to Landing")
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    TaskList(mainViewModel, context)
+                // Dialog för att skapa en uppgift
+                if (showDialog) {
+                    TaskCreationDialog(
+                        onDismiss = { showDialog = false },
+                        onCreateTask = { task ->
+                            mainViewModel.createTask(context, task)
+                            showDialog = false
+                        },
+                        users = users // Skickar användarlistan till dialogen
+                    )
                 }
             }
         }

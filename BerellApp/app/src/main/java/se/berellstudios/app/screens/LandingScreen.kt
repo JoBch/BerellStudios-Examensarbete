@@ -1,6 +1,5 @@
 package se.berellstudios.app.screens
 
-import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +12,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +22,7 @@ import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.DropdownMenuWithDetails
+import se.berellstudios.app.components.TaskItem
 import se.berellstudios.app.components.TaskList
 import se.berellstudios.app.ui.theme.BerellAppTheme
 
@@ -29,10 +31,12 @@ import se.berellstudios.app.ui.theme.BerellAppTheme
 //Where we land if loggedin=true
 @Composable
 fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
-    LaunchedEffect (Unit){
+    val context = LocalContext.current
+    val tasks by mainViewModel.tasks.collectAsState()
+
+    LaunchedEffect(Unit) {
         mainViewModel.viewStarterTasks()
     }
-    val context: Context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
         BerellAppTheme {
@@ -43,7 +47,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    //Row för välkomsttext och meny
+                    // Row för välkomsttext och meny
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -57,21 +61,27 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         Box(
                             modifier = Modifier.align(Alignment.CenterVertically)
                         ) {
-                            DropdownMenuWithDetails(navController, mainViewModel) //Menyn hamnar till höger
+                            DropdownMenuWithDetails(navController, mainViewModel) // Menyn hamnar till höger
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    //Viewing the three tasks with the nearest deadline
-                    TaskList(mainViewModel, context)
-                    DropdownMenuWithDetails(navController, mainViewModel)
+                    // Visa de tre uppgifter med närmast deadline
+                    Text("Tasks with the nearest deadline:")
+                    if (tasks.isEmpty()) {
+                        Text("No tasks available.")
+                    } else {
+                        tasks.take(3).forEach { task ->
+                            TaskItem(
+                                task = task,
+                                mainViewModel = mainViewModel, // Skicka med mainViewModel
+                                context = context // Skicka med context
+                            )
+                        }
+                    }
 
-                    Text("Welcome, " + RetrofitClient.getUsername(context) + ", you're logged in! Role: " + RetrofitClient.getRole(context))
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    //Viewing the three tasks with the nearest deadline
-                    TaskList(mainViewModel, context)
                 }
             }
         }
