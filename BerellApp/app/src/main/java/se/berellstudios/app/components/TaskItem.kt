@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,7 +53,7 @@ fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier, mainViewModel: MainVi
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            //.padding(8.dp)
     ) {
         // Bakgrund med border
         Box(
@@ -73,7 +75,7 @@ fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier, mainViewModel: MainVi
                     text = task.messageContent,
                     style = MaterialTheme.typography.bodyLarge
                 )
-
+                Spacer(modifier = Modifier.height(15.dp))
                 // Visa deadline
                 deadlineDate?.let { date ->
                     Text(
@@ -87,7 +89,7 @@ fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier, mainViewModel: MainVi
 
                     )
                 }
-
+                Spacer(modifier = Modifier.height(10.dp))
 
             }
         }
@@ -102,12 +104,13 @@ fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier, mainViewModel: MainVi
                 .align(Alignment.TopStart) // Justering till toppen av boxen
                 .offset(y = (-10).dp) // Flytta etiketten uppåt för att ligga "i ramen"
         )
-
+        Spacer(modifier = Modifier.height(10.dp))
         // Knapp som ändrar status på tasken
         Button(
             modifier = Modifier
                 .align(Alignment.BottomCenter) // Placera knappen längst ner i boxen
-                .padding(bottom = 8.dp),
+                .padding(bottom = 8.dp, top = 8.dp),
+
             onClick = {
                 //TODO får nog skicka med taskDTO för att det ska funka med backend
                 //Behöver id och status i alla fall, den ska bara skickas upp ett steg, todo->ongoing->done->delete
@@ -124,7 +127,7 @@ fun TaskItem(task: TaskDTO, modifier: Modifier = Modifier, mainViewModel: MainVi
             }
             Text(buttonText)
         }
-
+        Spacer(modifier = Modifier.height(10.dp))
         // Checkmark om status är "done"
         if (task.status == "done") {
             Icon(

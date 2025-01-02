@@ -106,9 +106,6 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Tillbaka till Landing
-                    Button(onClick = { navController.navigateUp() }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Back to Landing")
                     }
                 }
 
@@ -126,4 +123,4 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
             }
         }
     }
-}
+

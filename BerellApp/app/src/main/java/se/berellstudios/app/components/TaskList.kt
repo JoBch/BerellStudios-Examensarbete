@@ -26,7 +26,7 @@ fun TaskList(mainViewModel: MainViewModel, status: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            //.padding(16.dp)
     ) {
         Text(
             text = "Tasks",

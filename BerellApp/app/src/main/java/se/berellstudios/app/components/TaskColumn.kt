@@ -3,6 +3,7 @@ package se.berellstudios.app.components
 import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,7 +26,8 @@ fun TaskColumn(
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .width(150.dp)
+            .fillMaxWidth()
+
             .padding(8.dp)
     ) {
         Text(
