@@ -19,19 +19,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
 
-//Creating user, navigate here from startpage
 @Composable
 fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    val view = LocalView.current
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -41,7 +46,7 @@ fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel)
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    Greeting(name = "NY ANVÄNDARE SOM VILL SKAPA KONTO")
+                    Greeting(name = "new User who wants to create account")
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(
                         value = email,
@@ -62,30 +67,43 @@ fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel)
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Display error message if any
                     if (errorMessage.isNotEmpty()) {
                         Text(
                             text = errorMessage,
-                            color = Color.Red, // You can change the color to something else if preferred
-                            modifier = Modifier.padding(top = 8.dp)
+                            color = Color.Red,
+                            modifier = Modifier.padding(top = 8.dp),
+                            style = TextStyle(fontSize = 14.sp) // För flexibilitet med skärmar
                         )
                     }
-                    Button(
-                        onClick = {
-                            if (email.isBlank() || username.isBlank() || password.isBlank()) {
-                                errorMessage = "Something is missing, check all fields again"
-                            } else if (!isValidEmail(email)) {
-                                errorMessage = "Invalid email address"
-                            } else {
-                                errorMessage = ""
-                                //Calling register to register a user.
-                                mainViewModel.register(email, username, password)
-                                navController.navigate("login")
-                            }
 
-                        }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        Text("Create user AKA gå tillbaka till logga in")
+                        Button(
+                            onClick = {
+                                if (email.isBlank() || username.isBlank() || password.isBlank()) {
+                                    errorMessage = "Something is missing, check all fields again"
+                                    view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
+                                } else if (!isValidEmail(email)) {
+                                    errorMessage = "Invalid email address"
+                                    view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
+                                } else {
+                                    errorMessage = ""
+                                    mainViewModel.register(email, username, password)
+                                    navController.navigate("login")
+                                }
+                            },
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter) // Placera knappen längst ner
+                                .padding(bottom = 16.dp) // För estetik
+                        ) {
+                            Text(
+                                "Create user and go back to log in",
+                                style = TextStyle(fontSize = 16.sp)
+                            )
+                        }
                     }
                 }
             }

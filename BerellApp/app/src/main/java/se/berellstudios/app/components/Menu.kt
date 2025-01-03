@@ -23,7 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 
@@ -49,12 +52,14 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
             DropdownMenuItem(
                 text = { Text("Profile") },
                 leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) },
-                onClick = { showToast(context, "PROFILE UNDER CONSTRUCTION") }
+                onClick = { showToast(context, "PROFILE UNDER CONSTRUCTION") },
+                modifier = Modifier.semantics { contentDescription = "menu item Edit profile" }
             )
             DropdownMenuItem(
                 text = { Text("Settings") },
                 leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                onClick = { showToast(context, "SETTINGS UNDER CONSTRUCTION") }
+                onClick = { showToast(context, "SETTINGS UNDER CONSTRUCTION") },
+                modifier = Modifier.semantics { contentDescription = "menu item settings" }
             )
 
             HorizontalDivider()
@@ -63,18 +68,21 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
             DropdownMenuItem(
                 text = { Text("Home") },
                 leadingIcon = { Icon(Icons.Outlined.Home, contentDescription = null) },
-                onClick = { navController.navigate("landing") }
+                onClick = { navController.navigate("landing") },
+                modifier = Modifier.semantics { contentDescription = "menu item home, back to start" }
             )
 
             DropdownMenuItem(
                 text = { Text("Tasks") },
                 leadingIcon = { Icon(Icons.Outlined.Check, contentDescription = null) },
-                onClick = { navController.navigate("tasks") }
+                onClick = { navController.navigate("tasks") },
+                modifier = Modifier.semantics { contentDescription = "menu item tasks" }
             )
             DropdownMenuItem(
-                text = { Text("Messages OR Events") },
+                text = { Text("Events") },
                 leadingIcon = { Icon(Icons.Outlined.DateRange, contentDescription = null) },
-                onClick = { navController.navigate("messages") }
+                onClick = { navController.navigate("messages") },
+                modifier = Modifier.semantics { contentDescription = "menu item upcoming events" }
             )
 
             HorizontalDivider()
@@ -91,7 +99,8 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
                 onClick = {
                     mainViewModel.logout(context)
                     navController.navigate("login")
-                }
+                },
+                modifier = Modifier.semantics { contentDescription = "menu item log out" }
             )
         }
     }

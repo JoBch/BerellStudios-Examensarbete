@@ -64,7 +64,7 @@ fun TaskCreationDialog(
                     label = "Status",
                     options = TaskStatus.entries.map { it.displayName },
                     selectedOption = selectedStatus.displayName,
-                    onOptionSelected = { selectedStatus = TaskStatus.values()[it] }
+                    onOptionSelected = { selectedStatus = TaskStatus.entries.toTypedArray()[it] }
                 )
                 DropdownSelector(
                     label = "Priority",
@@ -100,27 +100,33 @@ fun TaskCreationDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            if (selectedUser != null) {
+                            if (selectedUser == null) {
+                                Toast.makeText(context, "Please select a user", Toast.LENGTH_SHORT).show()
+                            } else if (taskMessage.isEmpty()) {
+                                Toast.makeText(context, "Please enter a task description", Toast.LENGTH_SHORT).show()
+                            } else if (selectedDateTime == null) {
+                                Toast.makeText(context, "Please select a deadline", Toast.LENGTH_SHORT).show()
+                            }  else {
+                                // Skapa taskDTO och fortsätt
                                 onCreateTask(
                                     TaskDTO(
                                         id = null,
                                         messageContent = taskMessage,
-                                        status = selectedStatus.dbValue,
+                                        status = selectedStatus.dbValue, // Se till att statusen är korrekt
                                         deadline = deadline,
                                         priority = selectedPriority,
                                         createdTime = "",
                                         user_id = selectedUser!!.id
                                     )
                                 )
-                                onDismiss()
-                            } else {
-                                Toast.makeText(context, "Please select a user", Toast.LENGTH_SHORT).show()
+                                onDismiss() // Stäng dialogen efter skapande
                             }
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Create")
+                        Text("Add task")
                     }
+
                 }
             }
         }

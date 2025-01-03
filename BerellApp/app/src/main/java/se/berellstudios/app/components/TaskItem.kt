@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
@@ -83,7 +85,9 @@ fun TaskItem(
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Blue // Valfri färg för status
                             ),
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .semantics { contentDescription = "task status ${task.status}" }
                         )
                     }
                     Text(
@@ -97,17 +101,22 @@ fun TaskItem(
                                 fontWeight = FontWeight.Bold,
                                 color = deadlineColor // Använd deadlineColor här
                             ),
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .semantics { contentDescription = "deadline for the task" }
                         )
                     }
                 }
 
                 // Knappen längst till höger
                 Button(
-                    modifier = Modifier.padding(start = 16.dp), // Space mellan text och knapp
+                    modifier = Modifier
+                        .padding(start = 16.dp) // Space mellan text och knapp
+                        .semantics { contentDescription = "Change task status" },
                     onClick = {
                         mainViewModel.changeTaskStatus(context, task)
                     }
+
                 ) {
                     val buttonText = when (task.status) {
                         "todo" -> "DOING IT"

@@ -1,6 +1,5 @@
 package se.berellstudios.app.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,11 +26,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.components.Greeting
@@ -47,6 +50,7 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
     var errorMessage by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val view = LocalView.current
 
     //Observe the login state
     val loggedIn by mainViewModel.loggedIn.observeAsState(false)
@@ -77,7 +81,10 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                         value = username,
                         onValueChange = { username = it },
                         label = { Text("Email") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth(),
+
+
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -110,21 +117,28 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                     ) {
                         Checkbox(
                             checked = rememberMe,
-                            onCheckedChange = { rememberMe = it }
+                            onCheckedChange = { rememberMe = it },
+                            modifier = Modifier.semantics {
+                                contentDescription = "Remember me checkbox"
+                            }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Remember Me", style = TextStyle(fontSize = 16.sp))
+                        Text(
+                            "Remember Me",
+                            style = TextStyle(fontSize = 16.sp),
+                            modifier = Modifier
+                                .clickable { rememberMe = !rememberMe }
+                                .semantics { contentDescription = "Tap to toggle remember me" }
+                        )
                     }
 
-                    //Login button
                     Button(
                         onClick = {
                             if (username.isBlank() || password.isBlank()) {
                                 errorMessage = "Username and password are required"
+                                view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             } else {
-                                //Nollställ felmeddelandet om båda fälten är ifyllda
                                 errorMessage = ""
-                                //Anropa login-funktionen och hantera eventuella fel
                                 mainViewModel.login(
                                     context,
                                     username,
@@ -133,31 +147,33 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 ) { loginResult ->
                                     if (loginResult == "Invalid credentials") {
                                         errorMessage = "Invalid username or password"
+                                        view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                                     } else if (loginResult == "Error") {
                                         errorMessage = "An error occurred, please try again"
+                                        view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                                     }
                                 }
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Log in button" }
                     ) {
                         Text("Log in")
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     Box(
-                        modifier = Modifier.fillMaxSize() //Box fyller hela skärmen
+                        modifier = Modifier.fillMaxSize()
                     ) {
-
-                        //Klickbar text som är placerad längst ner
                         Text(
                             text = "Click here to create a new account",
                             modifier = Modifier
                                 .clickable {
                                     navController.navigate("createuser")
+                                    view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                                 }
-                                .align(Alignment.BottomCenter),  //Placerar texten längst ner
+                                .align(Alignment.BottomCenter) // Placera längst ner i Boxen
+                                .padding(bottom = 16.dp), // Lägg till lite padding för bättre utseende
                             style = TextStyle(
                                 fontSize = 15.sp,
                                 color = Purple40,

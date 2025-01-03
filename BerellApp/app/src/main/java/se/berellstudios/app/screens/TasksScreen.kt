@@ -28,6 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
@@ -79,6 +81,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
+                            .semantics { contentDescription = "Dropdown menu for alternatives in app" }
 
                     ) {
 
@@ -100,18 +103,22 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                 contentColor = MaterialTheme.colorScheme.secondary
                             ) {
-                                Icon(Icons.Filled.Add, "Small floating action button.")
+                                Icon(Icons.Filled.Add, "Small floating action button for adding task.")
                             }
                         }
                     }
                     // Tabbar för Task Status
                     val tabs = TaskStatus.entries
-                    TabRow(selectedTabIndex = tabs.indexOf(selectedTab)) {
+                    TabRow(selectedTabIndex = tabs.indexOf(selectedTab),
+                        modifier = Modifier.semantics { contentDescription = "Tabs for different task statuses" }) {
                         tabs.forEach { tab ->
                             Tab(
                                 selected = selectedTab == tab,
                                 onClick = { selectedTab = tab },
-                                text = { Text(tab.displayName) }
+                                text = { Text(tab.displayName) },
+                                modifier = Modifier.semantics {
+                                    contentDescription = "Tab for ${tab.displayName}"
+                                }
                             )
                         }
                     }
