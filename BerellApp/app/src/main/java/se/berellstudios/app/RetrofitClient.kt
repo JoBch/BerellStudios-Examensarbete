@@ -1,15 +1,20 @@
 package se.berellstudios.app
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
 object RetrofitClient {
 
     private const val BASE_URL_JOEL = "http://192.168.1.102:8080"  //Joels IP address
-    private const val BASE_URL_ANDREAS = "http://192.168.1.139:8080"  //Andreas IP address TODO visst slutade din på .139?
+    private const val BASE_URL_ANDREAS =
+        "http://192.168.1.139:8080"  //Andreas IP address TODO visst slutade din på .139?
     private var jwtToken: String? = null //Used locally for authInterceptor
     lateinit var apiService: ApiService
 
@@ -30,9 +35,8 @@ object RetrofitClient {
             //Proceed with the request (it can now have the Authorization header)
             var response = chain.proceed(requestBuilder.build())
 
-            //If the response is 400 Unauthorized, attempt to refresh the token
-            //TODO funkar som önskat, men är det rätt sätt att göra det på?
-            if (response.code == 400) {
+            //If the response is 400/401 Unauthorized, attempt to refresh the token
+            if (response.code == 400 || response.code == 401) {
                 //Try refreshing the token
                 val refreshToken = getRefreshToken(context)
                 if (refreshToken != null) {
@@ -97,69 +101,93 @@ object RetrofitClient {
         }
     }
 
-    //TODO göra om alla token realterade get/set till encrypted sharedPrefs.
-    //Load the token from SharedPreferences when the app starts to set it locally for authInterceptor
+    //Helper function to retrieve EncryptedSharedPreferences for safer storage
+    private fun getEncryptedSharedPreferences(context: Context): SharedPreferences {
+        //Retrieve the master key
+        val masterKey = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+
+        //Initialize EncryptedSharedPreferences
+        return EncryptedSharedPreferences.create(
+            masterKey,
+            "my_secure_prefs",
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
+
+    // Load the token from EncryptedSharedPreferences
     fun loadToken(context: Context) {
         jwtToken = getAccessToken(context)
     }
 
+    // Set username
     fun setUsername(context: Context, username: String?) {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().putString("username", username).apply()
     }
 
+    // Get username
     fun getUsername(context: Context): String? {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         return sharedPref.getString("username", null)
     }
 
+    // Set role
     fun setRole(context: Context, role: String?) {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().putString("user_role", role).apply()
     }
 
+    // Get role
     fun getRole(context: Context): String? {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         return sharedPref.getString("user_role", null)
     }
 
+    // Clear role
     fun clearRole(context: Context) {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().remove("user_role").apply()
     }
 
-    //Function to save the refresh token in SharedPreferences
+    // Set refresh token
     fun setRefreshToken(context: Context, refreshToken: String) {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().putString("refreshToken", refreshToken).apply()
     }
 
-    fun clearRefreshToken(context: Context){
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+    // Clear refresh token
+    fun clearRefreshToken(context: Context) {
+        val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().remove("refreshToken").apply()
     }
 
-    //Retrieve the refresh token from SharedPreferences
+    // Get refresh token
     fun getRefreshToken(context: Context): String? {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         return sharedPref.getString("refreshToken", null)
     }
 
-    //Load and save access token locally
+    // Set access token
     fun setAccessToken(context: Context, token: String) {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().putString("accessToken", token).apply()
-        jwtToken = token //Update local reference for the interceptor
+        jwtToken = token // Update local reference for the interceptor
     }
 
+    // Get access token
     fun getAccessToken(context: Context): String? {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         return sharedPref.getString("accessToken", null)
     }
 
+    // Clear access token
     fun clearAccessToken(context: Context) {
-        val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().remove("accessToken").apply()
         jwtToken = null
     }
 }
+

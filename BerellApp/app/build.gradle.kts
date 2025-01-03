@@ -50,6 +50,8 @@ android {
 }
 
 dependencies {
+    implementation (libs.kotlin.stdlib)
+    implementation (libs.androidx.security.crypto)
     implementation (libs.material3)
     implementation (libs.java.jwt)
     implementation(libs.retrofit)
