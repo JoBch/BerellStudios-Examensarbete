@@ -33,7 +33,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import se.berellstudios.app.APICalls
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -143,35 +142,6 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Log in")
-                    }
-
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    //TODO ta bort denna när vi känner oss säkra på uppkopplingen mot server för att rensa kod
-                    Button(
-                        onClick = {
-                            APICalls.callPingApi(
-                                context = context,
-                                onSuccess = { message ->
-                                    Toast.makeText(
-                                        context,
-                                        "Ping Success: $message",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                },
-                                onError = { error ->
-                                    Toast.makeText(
-                                        context,
-                                        "Ping Error: $error",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Ping Server")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
