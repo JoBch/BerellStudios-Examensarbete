@@ -8,9 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -46,6 +50,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(TaskStatus.ONGOING) }
     val users by mainViewModel.users.collectAsState()
+    var isLandingScreen by remember { mutableStateOf(false) }
 
     // Ladda användare när skärmen laddas
     LaunchedEffect(Unit) {
@@ -59,6 +64,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
+                        .padding(16.dp)
                 ) {
                     Row(
                     modifier = Modifier
@@ -66,23 +72,38 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(bottom = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                        Text("Tasks", style = MaterialTheme.typography.headlineMedium)
+                    Text(
+                        "Tasks", style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.weight(1f))
 
                     Box(
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+
                     ) {
+
                         DropdownMenuWithDetails(navController, mainViewModel) // Menyn hamnar till höger
                     }
                 }
                     // Header och skapa ny task-knapp
 
                     if (RetrofitClient.getRole(context) == "admin") {
-                        Button(onClick = { showDialog = true }) {
-                            Text("Create new task")
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Add new task")
+                            SmallFloatingActionButton(
+                                onClick = { showDialog = true  },
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.secondary
+                            ) {
+                                Icon(Icons.Filled.Add, "Small floating action button.")
+                            }
                         }
                     }
-
                     // Tabbar för Task Status
                     val tabs = TaskStatus.entries
                     TabRow(selectedTabIndex = tabs.indexOf(selectedTab)) {
@@ -99,9 +120,9 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     // Visa uppgifter för vald status
                     when (selectedTab) {
-                        TaskStatus.TODO -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.TODO.dbValue)
-                        TaskStatus.ONGOING -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.ONGOING.dbValue)
-                        TaskStatus.DONE -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.DONE.dbValue)
+                        TaskStatus.TODO -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.TODO.dbValue, isLandingScreen)
+                        TaskStatus.ONGOING -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.ONGOING.dbValue, isLandingScreen)
+                        TaskStatus.DONE -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.DONE.dbValue, isLandingScreen)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))

@@ -1,12 +1,11 @@
 package se.berellstudios.app.components
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,33 +16,33 @@ import se.berellstudios.app.MainViewModel
 
 //Listan är överst
 @Composable
-fun TaskList(mainViewModel: MainViewModel, status: String) {
+fun TaskList(mainViewModel: MainViewModel, status: String, isLandingScreen: Boolean) {
     val tasks by mainViewModel.tasks.collectAsState()
 
-    // Filter tasks based on the provided status
+
+    // Filtrera tasks baserat på status
     val filteredTasks = tasks.filter { it.status == status }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            //.padding(16.dp)
+            .padding(16.dp)
     ) {
-        Text(
-            text = "Tasks",
+        /*Text(
+            text = status.replaceFirstChar { it.uppercaseChar() },
             modifier = Modifier.padding(bottom = 8.dp)
-        )
+        )*/
 
-        // LazyRow to display tasks for the current status
-        LazyRow(
+        // Använd LazyColumn direkt för att visa tasks
+        LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                TaskColumn(
-                    status = status,
-                    tasks = filteredTasks,
+            items(filteredTasks) { task ->
+                TaskItem(
+                    task = task,
                     mainViewModel = mainViewModel,
-                    context = LocalContext.current // Pass current context
+                    context = LocalContext.current,
+                    isLandingScreen = isLandingScreen
                 )
             }
         }
