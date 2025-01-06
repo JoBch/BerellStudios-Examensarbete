@@ -7,9 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +34,9 @@ import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.MessageDTO
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.DropdownMenuWithDetails
+import se.berellstudios.app.components.MessageCreationDialog
 import se.berellstudios.app.components.MessageList
+import se.berellstudios.app.components.TaskCreationDialog
 import se.berellstudios.app.components.showDateTimePicker
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import java.time.LocalDateTime
@@ -41,11 +48,8 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
     LaunchedEffect(Unit) {
         mainViewModel.viewMessages()
     }
-    var message by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
-    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
-    var deadline by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
@@ -69,7 +73,9 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .semantics { contentDescription = "Dropdown menu for alternatives in app" }
+                                .semantics {
+                                    contentDescription = "Dropdown menu for alternatives in app"
+                                }
                         ) {
                             DropdownMenuWithDetails(
                                 navController,
@@ -79,63 +85,38 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                     }
 
                     if (RetrofitClient.getRole(context) == "admin") {
-                        OutlinedTextField(
-                            value = message,
-                            onValueChange = { message = it },
-                            label = { Text("Enter message to save to DB") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        //Show error message if any
-                        if (errorMessage.isNotEmpty()) {
-                            Text(
-                                text = errorMessage,
-                                color = Color.Red,
-                                modifier = Modifier.padding(top = 8.dp)
-                            )
-                        }
-
-                        Button(
-                            onClick = {
-                                showDateTimePicker(context) { dateTime ->
-                                    selectedDateTime = dateTime
-                                    deadline =
-                                        dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Pick a Date and Time")
-                        }
-
-                        Button(
-                            onClick = {
-                                if (message.isBlank()) {
-                                    errorMessage = "message is empty, please write SOMETHING"
-                                } else {
-                                    errorMessage = ""
-
-                                    val messageDTO = MessageDTO(
-                                        id = null, //Set by the server
-                                        message = message,
-                                        deadline = deadline,
-                                        createdTime = "", //Set by the server
-                                        createdBy = null //Set by the server
-                                    )
-                                    //Calling createMessage
-                                    mainViewModel.createMessage(context, messageDTO)
-                                    Log.i("Andreas", "CreateMessage: $message")
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Add new event")
+                                SmallFloatingActionButton(
+                                    onClick = { showDialog = true  },
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.secondary
+                                ) {
+                                    Icon(Icons.Filled.Add, "Small floating action button for adding task.")
                                 }
                             }
-                        ) {
-                            Text("Create Message")
                         }
-                    }
 
-                    //Displaying messages
-                    MessageList(mainViewModel = mainViewModel)
+                        //Displaying messages
+                        MessageList(mainViewModel = mainViewModel)
+                    }
                 }
+            }
+            if (showDialog) {
+                MessageCreationDialog(
+                    onDismiss = { showDialog = false },
+                    onCreateMessage = { message ->
+                        mainViewModel.createMessage(context, message)
+                        showDialog = false
+                    },
+                    mainViewModel = mainViewModel)
+
             }
         }
     }
-}
+
