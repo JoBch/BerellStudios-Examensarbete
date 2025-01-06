@@ -252,6 +252,7 @@ public class TaskController {
                     }
                     taskDTO.setStatus(task.getStatus());
                     taskDTO.setDeadline(task.getDeadline());
+                    taskDTO.setPriority(task.getPriority());
                     taskDTO.setCreatedTime(task.getCreatedTime());
                     taskDTO.setUser_id(task.getUser().getId());
                     return taskDTO;

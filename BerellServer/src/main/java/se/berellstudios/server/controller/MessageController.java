@@ -7,9 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.berellstudios.server.dtos.MessageDTO;
-import se.berellstudios.server.dtos.TaskDTO;
 import se.berellstudios.server.entities.MessageEntity;
-import se.berellstudios.server.entities.TaskEntity;
 import se.berellstudios.server.entities.UserEntity;
 import se.berellstudios.server.repositories.MessageRepository;
 import se.berellstudios.server.repositories.UserRepository;
@@ -191,7 +189,7 @@ public class MessageController {
                         throw new RuntimeException(e);
                     }
                     messageDTO.setDeadline(task.getDeadline());
-                    messageDTO.setDeadline(task.getCreatedAt());
+                    messageDTO.setCreatedAt(task.getCreatedAt());
                     messageDTO.setUser_id(task.getUser().getId());
                     return messageDTO;
                 })
