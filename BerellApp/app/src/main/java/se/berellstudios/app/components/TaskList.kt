@@ -1,5 +1,6 @@
 package se.berellstudios.app.components
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +17,9 @@ import se.berellstudios.app.MainViewModel
 
 //Listan är överst
 @Composable
-fun TaskList(mainViewModel: MainViewModel, status: String, isLandingScreen: Boolean) {
+fun TaskList(mainViewModel: MainViewModel, status: String, isLandingScreen: Boolean, context: Context) {
     val tasks by mainViewModel.tasks.collectAsState()
-
+    val users = mainViewModel.users.collectAsState(initial = emptyList())
 
     // Filtrera tasks baserat på status
     val filteredTasks = tasks.filter { it.status == status }
@@ -40,8 +41,8 @@ fun TaskList(mainViewModel: MainViewModel, status: String, isLandingScreen: Bool
             items(filteredTasks) { task ->
                 TaskItem(
                     task = task,
+                    context = context,
                     mainViewModel = mainViewModel,
-                    context = LocalContext.current,
                     isLandingScreen = isLandingScreen
                 )
             }

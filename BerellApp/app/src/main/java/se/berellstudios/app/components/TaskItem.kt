@@ -1,6 +1,7 @@
 package se.berellstudios.app.components
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.TaskDTO
+import se.berellstudios.app.UserDTO
 import se.berellstudios.app.ui.theme.Pink40
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -30,10 +37,11 @@ import java.time.format.DateTimeFormatter
 fun TaskItem(
     task: TaskDTO,
     modifier: Modifier = Modifier,
-    mainViewModel: MainViewModel,
     context: Context,
+    mainViewModel: MainViewModel,
     isLandingScreen: Boolean
 ) {
+    var showDialog by remember { mutableStateOf(false) }
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Format för datum
 
     // Dagens datum i samma format som deadline
@@ -109,20 +117,21 @@ fun TaskItem(
                                     .padding(top = 8.dp)
                                     .semantics { contentDescription = "deadline for the task" }
                             )
-                            androidx.compose.material3.IconButton(
-                                onClick = {
-                                    // HÄR UPPDATERAR MAN SIN TASK
-
-                                },
-                                modifier = Modifier
-                                    .padding(start = 8.dp) // Space mellan deadline-text och knappen
-                                    .semantics { contentDescription = "edit deadline button" }
-                            ) {
-                                androidx.compose.material3.Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Default.Edit,
-                                    contentDescription = "Edit Icon",
-                                    tint = MaterialTheme.colorScheme.primary // Anpassa färgen på ikonen
-                                )
+                            if(!isLandingScreen){
+                                androidx.compose.material3.IconButton(
+                                    onClick = {
+                                        showDialog = true
+                                    },
+                                    modifier = Modifier
+                                        .padding(start = 8.dp) // Space mellan deadline-text och knappen
+                                        .semantics { contentDescription = "edit deadline button" }
+                                ) {
+                                    androidx.compose.material3.Icon(
+                                        imageVector = androidx.compose.material.icons.Icons.Default.Edit,
+                                        contentDescription = "Edit Icon",
+                                        tint = MaterialTheme.colorScheme.primary // Anpassa färgen på ikonen
+                                    )
+                                }
                             }
                             // Knappen längst till höger
                             Button(
@@ -137,7 +146,7 @@ fun TaskItem(
                                 val buttonText = when (task.status) {
                                     "todo" -> "DOING IT"
                                     "ongoing" -> "DONE"
-                                    "done" -> "ARCHIVE"
+                                    "done" -> "DELETE"
                                     else -> "UNKNOWN"
                                 }
                                 Text(buttonText)
@@ -148,6 +157,17 @@ fun TaskItem(
 
                 }
             }
+        }
+        if (showDialog) {
+            TaskEditDialog(
+                taskDTO = task,
+                onDismiss = { showDialog = false },
+                onEditTask = { editedTask ->
+                    mainViewModel.editTask(context, editedTask) //Update task
+                    showDialog = false
+                },
+                users = mainViewModel.users.collectAsState().value
+            )
         }
     }
 }

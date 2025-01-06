@@ -81,18 +81,6 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun deleteMessage(context: Context, message: MessageDTO) {
-        viewModelScope.launch {
-            try {
-                val response = RetrofitClient.apiService.deleteMessage(message)
-                Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
-                viewMessages()
-            } catch (e: Exception) {
-                println("Failed to delete message: ${e.message}")
-            }
-        }
-    }
-
     fun createMessage(context: Context, message: MessageDTO) {
         viewModelScope.launch {
             try {
@@ -117,6 +105,30 @@ class MainViewModel : ViewModel() {
                 println("Messages fetched: ${_messages.value}")
             } catch (e: Exception) {
                 println("Failed to fetch messages: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteMessage(context: Context, message: MessageDTO) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.deleteMessage(message)
+                Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+                viewMessages()
+            } catch (e: Exception) {
+                println("Failed to delete message: ${e.message}")
+            }
+        }
+    }
+
+    fun editMessage(context: Context, message: MessageDTO) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.editMessage(message)
+                Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+                viewMessages()
+            } catch (e: Exception) {
+                println("Failed to edit message: ${e.message}")
             }
         }
     }
@@ -157,8 +169,20 @@ class MainViewModel : ViewModel() {
                 println("Changed task: $task")
                 viewTasks()
             } catch (e: Exception) {
-                println("Changed task: $task")
                 println("Failed to change task: ${e.message}")
+            }
+        }
+    }
+
+    fun editTask(context: Context, task: TaskDTO){
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.editTask(task)
+                Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
+                //After creating the task, reload the task list
+                viewTasks()
+            } catch (e: Exception) {
+                println("Failed to edit task: ${e.message}")
             }
         }
     }

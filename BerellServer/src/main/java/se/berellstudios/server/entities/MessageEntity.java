@@ -28,7 +28,7 @@ public class MessageEntity {
     private LocalDateTime deadline;
 
     @Column(name = "created_time")
-    private LocalDateTime createdTime;
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)

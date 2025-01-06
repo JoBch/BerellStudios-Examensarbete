@@ -17,6 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -34,8 +37,7 @@ fun MessageItem (
     mainViewModel: MainViewModel,
     context: Context
 ) {
-    val messages by mainViewModel.messages.collectAsState()
-    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -78,19 +80,29 @@ fun MessageItem (
             )
             androidx.compose.material3.IconButton(
                 onClick = {
-                    // HÄR UPPDATERAR MAN SIN TASK
+                    showDialog = true
 
                 },
                 modifier = Modifier
                     .padding(start = 8.dp) // Space mellan deadline-text och knappen
                     .semantics { contentDescription = "edit deadline button" }
             ) {
-                androidx.compose.material3.Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Edit,
+                Icon(
+                    imageVector = Icons.Default.Edit,
                     contentDescription = "Edit Icon",
                     tint = MaterialTheme.colorScheme.primary // Anpassa färgen på ikonen
                 )
             }
+        }
+        if (showDialog) {
+            MessageEditDialog(
+                messageDTO = message,
+                onDismiss = { showDialog = false },
+                onEditMessage = { editedMessage ->
+                    mainViewModel.editMessage(context, editedMessage) //Update message
+                    showDialog = false
+                },
+            )
         }
     }
 }

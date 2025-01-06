@@ -19,5 +19,9 @@ public class JwtExceptions {
             super(message);
         }
     }
+
+    public static class TaskNotFoundException extends RuntimeException {
+        public TaskNotFoundException(String message) {}
+    }
 }
 

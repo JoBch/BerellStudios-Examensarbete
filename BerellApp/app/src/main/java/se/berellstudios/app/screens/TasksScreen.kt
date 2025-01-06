@@ -127,9 +127,9 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     // Visa uppgifter för vald status
                     when (selectedTab) {
-                        TaskStatus.TODO -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.TODO.dbValue, isLandingScreen)
-                        TaskStatus.ONGOING -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.ONGOING.dbValue, isLandingScreen)
-                        TaskStatus.DONE -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.DONE.dbValue, isLandingScreen)
+                        TaskStatus.TODO -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.TODO.dbValue, isLandingScreen, context = context)
+                        TaskStatus.ONGOING -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.ONGOING.dbValue, isLandingScreen, context = context)
+                        TaskStatus.DONE -> TaskList(mainViewModel = mainViewModel, status = TaskStatus.DONE.dbValue, isLandingScreen, context = context)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))

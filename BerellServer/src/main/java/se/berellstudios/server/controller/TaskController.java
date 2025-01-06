@@ -16,10 +16,7 @@ import se.berellstudios.server.utils.JWTUtil;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -151,6 +148,7 @@ public class TaskController {
         }
     }
 
+    //Change the status on tasks to the one above it: todo->ongoing->done->delete
     @PostMapping("/changestatus")
     @Transactional
     public ResponseEntity<Map<String, String>> changeStatusOnTasks(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskDTO) {
@@ -194,6 +192,52 @@ public class TaskController {
         }
     }
 
+    //Edit task
+    @PostMapping("/edit")
+    @Transactional
+    public ResponseEntity<Map<String, String>> editTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskDTO) {
+
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String jwtToken = token.substring(7);
+            if (!jwtUtil.validateToken(jwtToken)) {
+                throw new Exception("Invalid token");
+            }
+            String username = jwtUtil.extractEmail(jwtToken);
+            UserEntity user = userRepository.findByEmail(username);
+
+            jwtUtil.jwtCheck(token, user);
+
+            String encryptedMessage = aesUtil.encryptMessage(taskDTO.getMessageContent());
+
+            UserEntity assignedToUser = userRepository.findById(taskDTO.getUser_id());
+
+            //Update and save the task entity
+            Optional<TaskEntity> existingTask = taskRepository.findById((long) taskDTO.getId());
+            if (existingTask.isPresent()) {
+                TaskEntity taskEntity = existingTask.get();
+                taskEntity.setMessageContent(encryptedMessage);
+                taskEntity.setUser(assignedToUser);
+                taskEntity.setStatus(taskDTO.getStatus());
+                taskEntity.setDeadline(taskDTO.getDeadline());
+                taskEntity.setPriority(taskDTO.getPriority());
+                taskRepository.save(taskEntity);
+            } else {
+                throw new JwtExceptions.TaskNotFoundException("Task not found");
+            }
+
+            response.put("message", "Task updated successfully!");
+            return ResponseEntity.ok(response);
+        } catch (JwtExceptions.InvalidTokenException | JwtExceptions.ExpiredTokenException |
+                 JwtExceptions.UserNotFoundException | ParseException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
     //Duplicated code so created this for readability
     private ResponseEntity<?> getResponseEntity(List<TaskEntity> taskEntities) {

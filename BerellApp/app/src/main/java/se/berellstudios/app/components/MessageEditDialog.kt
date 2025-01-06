@@ -1,6 +1,5 @@
 package se.berellstudios.app.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,21 +19,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.MessageDTO
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun MessageCreationDialog(
+fun MessageEditDialog(
+    messageDTO: MessageDTO,
     onDismiss: () -> Unit,
-    onCreateMessage: (MessageDTO) -> Unit,
-    mainViewModel: MainViewModel
-) {
-    var message by remember { mutableStateOf("") }
+    onEditMessage: (MessageDTO) -> Unit,
+    ) {
+    var message by remember { mutableStateOf(messageDTO.message) }
     var errorMessage by remember { mutableStateOf("") }
-    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
-    var deadline by remember { mutableStateOf<String?>(null) }
+    var selectedDateTime by remember { mutableStateOf(messageDTO.deadline) }
+    var deadline by remember { mutableStateOf(messageDTO.deadline) }
     val context = LocalContext.current
 
     Dialog(onDismissRequest = onDismiss) {
@@ -46,7 +43,7 @@ fun MessageCreationDialog(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Create New Message",
+                    text = "Edit Message ID: ${messageDTO.id}",
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -71,7 +68,7 @@ fun MessageCreationDialog(
                 Button(
                     onClick = {
                         showDateTimePicker(context) { dateTime ->
-                            selectedDateTime = dateTime
+                            selectedDateTime = dateTime.toString()
                             deadline = dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                         }
                     },
@@ -98,16 +95,12 @@ fun MessageCreationDialog(
                             errorMessage = "Message is empty, please write SOMETHING"
                         } else {
                             errorMessage = ""
-
-                            val messageDTO = MessageDTO(
-                                id = null, // Set by the server
+                            onEditMessage(messageDTO.copy(
                                 message = message,
                                 deadline = deadline,
                                 createdAt = "", // Set by the server
                                 user_id = null // Set by the server
-                            )
-                            onCreateMessage(messageDTO) // Notify parent about message creation
-                            Log.i("Andreas", "CreateMessage: $message")
+                            )) // Notify parent about message creation
                             onDismiss() // Close dialog after successful creation
                         }
                     },
@@ -115,7 +108,7 @@ fun MessageCreationDialog(
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                 ) {
-                    Text("Create Message")
+                    Text("Edit Message")
                 }
 
                 // Cancel button

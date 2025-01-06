@@ -18,7 +18,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     List<TaskEntity> findTop3ByOrderByDeadlineAsc();
 
-    //Custom query
+    //Custom query to set a new status on task by id
     @Modifying
     @Query("UPDATE tasks t SET t.status = :status WHERE t.id = :id")
     void updateStatusById(@Param("id") int id, @Param("status") String status);

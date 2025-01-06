@@ -27,8 +27,8 @@ data class TaskDTO(
 data class MessageDTO(
     val id: Int?,
     val message: String,
-    val createdBy: Int?,
-    val createdTime: String,
+    val user_id: Int?,
+    val createdAt: String?,
     val deadline: String?
 )
 
@@ -67,6 +67,11 @@ interface ApiService {
     @GET("/messages/view")
     suspend fun viewMessages(): List<MessageDTO>
 
+    @POST("/messages/edit")
+    suspend fun editMessage(
+        @Body request: MessageDTO,
+    ): MessageResponse
+
     @POST("/tasks/create")
     suspend fun createTask(
         @Body request: TaskDTO,
@@ -80,6 +85,11 @@ interface ApiService {
 
     @POST("/tasks/changestatus")
     suspend fun changeTaskStatus(
+        @Body request: TaskDTO,
+    ): MessageResponse
+
+    @POST("/tasks/edit")
+    suspend fun editTask(
         @Body request: TaskDTO,
     ): MessageResponse
 

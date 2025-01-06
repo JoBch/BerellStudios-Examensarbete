@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.RetrofitClient
+import se.berellstudios.app.TaskDTO
 import se.berellstudios.app.components.DropdownMenuWithDetails
 import se.berellstudios.app.components.TaskItem
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -85,7 +86,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 task = task,
                                 mainViewModel = mainViewModel, // Skicka med mainViewModel
                                 context = context, // Skicka med context
-                                isLandingScreen = isLandingScreen
+                                isLandingScreen = isLandingScreen,
                             )
                         }
                     }
