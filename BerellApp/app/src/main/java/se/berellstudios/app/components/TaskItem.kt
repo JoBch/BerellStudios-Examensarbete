@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -95,36 +96,56 @@ fun TaskItem(
                         style = MaterialTheme.typography.bodyLarge
                     )
                     deadlineDate?.let { date ->
-                        Text(
-                            text = "Deadline: ${date.format(dateFormatter)}",
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = deadlineColor // Använd deadlineColor här
-                            ),
-                            modifier = Modifier
-                                .padding(top = 8.dp)
-                                .semantics { contentDescription = "deadline for the task" }
-                        )
-                    }
-                }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically // Vertikal centrering av text och knapp
+                        ) {
+                            Text(
+                                text = "Deadline: ${date.format(dateFormatter)}",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = deadlineColor // Använd deadlineColor här
+                                ),
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .semantics { contentDescription = "deadline for the task" }
+                            )
+                            androidx.compose.material3.IconButton(
+                                onClick = {
+                                    // HÄR UPPDATERAR MAN SIN TASK
 
-                // Knappen längst till höger
-                Button(
-                    modifier = Modifier
-                        .padding(start = 16.dp) // Space mellan text och knapp
-                        .semantics { contentDescription = "Change task status" },
-                    onClick = {
-                        mainViewModel.changeTaskStatus(context, task)
+                                },
+                                modifier = Modifier
+                                    .padding(start = 8.dp) // Space mellan deadline-text och knappen
+                                    .semantics { contentDescription = "edit deadline button" }
+                            ) {
+                                androidx.compose.material3.Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Default.Edit,
+                                    contentDescription = "Edit Icon",
+                                    tint = MaterialTheme.colorScheme.primary // Anpassa färgen på ikonen
+                                )
+                            }
+                            // Knappen längst till höger
+                            Button(
+                                modifier = Modifier
+                                    .padding(start = 16.dp) // Space mellan text och knapp
+                                    .semantics { contentDescription = "Change task status" },
+                                onClick = {
+                                    mainViewModel.changeTaskStatus(context, task)
+                                }
+
+                            ) {
+                                val buttonText = when (task.status) {
+                                    "todo" -> "DOING IT"
+                                    "ongoing" -> "DONE"
+                                    "done" -> "ARCHIVE"
+                                    else -> "UNKNOWN"
+                                }
+                                Text(buttonText)
+                            }
+                        }
                     }
 
-                ) {
-                    val buttonText = when (task.status) {
-                        "todo" -> "DOING IT"
-                        "ongoing" -> "DONE"
-                        "done" -> "ARCHIVE"
-                        else -> "UNKNOWN"
-                    }
-                    Text(buttonText)
+
                 }
             }
         }

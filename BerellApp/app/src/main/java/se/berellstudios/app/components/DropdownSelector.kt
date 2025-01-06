@@ -19,7 +19,8 @@ fun DropdownSelector(
     label: String,
     options: List<String>,
     selectedOption: String,
-    onOptionSelected: (Int) -> Unit
+    onOptionSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
 

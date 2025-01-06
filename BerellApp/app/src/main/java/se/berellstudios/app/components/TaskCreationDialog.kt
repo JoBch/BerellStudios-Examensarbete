@@ -20,12 +20,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.view.HapticFeedbackConstantsCompat
 import se.berellstudios.app.TaskDTO
 import se.berellstudios.app.UserDTO
 import se.berellstudios.app.screens.TaskStatus
+import se.berellstudios.app.ui.theme.Pink40
+import se.berellstudios.app.ui.theme.Pink80
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -43,6 +50,7 @@ fun TaskCreationDialog(
     var deadline by remember { mutableStateOf<String?>(null) }
     var selectedUser by remember { mutableStateOf<UserDTO?>(null) }
     val context = LocalContext.current
+    val view = LocalView.current
 
     Dialog(onDismissRequest = onDismiss) {
         Box(
@@ -52,32 +60,39 @@ fun TaskCreationDialog(
                 .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.medium)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Create New Task", style = MaterialTheme.typography.headlineMedium)
+                Text("Create New Task",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Pink80)
                 OutlinedTextField(
                     value = taskMessage,
                     onValueChange = { taskMessage = it },
                     label = { Text("Task Description") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics { contentDescription = "textfield, write new task here" }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 DropdownSelector(
                     label = "Status",
                     options = TaskStatus.entries.map { it.displayName },
                     selectedOption = selectedStatus.displayName,
-                    onOptionSelected = { selectedStatus = TaskStatus.entries.toTypedArray()[it] }
+                    onOptionSelected = { selectedStatus = TaskStatus.entries.toTypedArray()[it] },
+                    modifier = Modifier.semantics { contentDescription = "Dropdown to select current status of task" }
                 )
                 DropdownSelector(
                     label = "Priority",
                     options = listOf("1", "2", "3"),
                     selectedOption = selectedPriority.toString(),
-                    onOptionSelected = { selectedPriority = it + 1 }
+                    onOptionSelected = { selectedPriority = it + 1 },
+                    modifier = Modifier.semantics { contentDescription = "Dropdown to select priority of task" }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 DropdownSelector(
                     label = "Assign to User",
                     options = users.map { it.username },
                     selectedOption = selectedUser?.username ?: "None",
-                    onOptionSelected = { index -> selectedUser = users[index] }
+                    onOptionSelected = { index -> selectedUser = users[index] },
+                    modifier = Modifier.semantics { contentDescription = "Dropdown to set a user to the task" }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
@@ -87,7 +102,9 @@ fun TaskCreationDialog(
                             deadline = dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics { contentDescription = "Button, set deadline for task" }
                 ) {
                     Text("Pick a Date and Time")
                 }
@@ -102,10 +119,13 @@ fun TaskCreationDialog(
                         onClick = {
                             if (selectedUser == null) {
                                 Toast.makeText(context, "Please select a user", Toast.LENGTH_SHORT).show()
+                                view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             } else if (taskMessage.isEmpty()) {
                                 Toast.makeText(context, "Please enter a task description", Toast.LENGTH_SHORT).show()
+                                view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             } else if (selectedDateTime == null) {
                                 Toast.makeText(context, "Please select a deadline", Toast.LENGTH_SHORT).show()
+                                view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             }  else {
                                 // Skapa taskDTO och fortsätt
                                 onCreateTask(
@@ -122,7 +142,9 @@ fun TaskCreationDialog(
                                 onDismiss() // Stäng dialogen efter skapande
                             }
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .semantics { contentDescription = "button to create task" }
                     ) {
                         Text("Add task")
                     }

@@ -41,33 +41,12 @@ fun MessageList(mainViewModel: MainViewModel) {
             //Iterating through the messages from MVM and populating the LazyColumn 1 by 1
             items(messages) { message ->
                 //SKAPA CARDS HÄR SOM INNEHÅLLER MESSAGE
-                Text(
-                    text = "" + message.message,
-                    modifier = Modifier //TODO snygga till "CSS"
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .background(Color.LightGray)
-                        .padding(8.dp)
-                )
-                IconButton(
-                    onClick = {
-                        mainViewModel.deleteMessage(context, message)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = "Delete message",
-                        tint = Color.Red
-                    )
-                }
-
-                Text(
-                    text = "Deadline: ${message.deadline}",
-                    color = Color.DarkGray,
-                    modifier = Modifier.padding(top = 4.dp)
+                MessageItem(
+                    message = message,
+                    mainViewModel = mainViewModel,
+                    context = LocalContext.current,
                 )
             }
-
         }
     }
 }
