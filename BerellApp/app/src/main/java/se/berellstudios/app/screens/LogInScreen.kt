@@ -1,5 +1,7 @@
 package se.berellstudios.app.screens
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -37,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
+import se.berellstudios.app.R
 import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.ui.theme.Purple40
@@ -64,6 +68,9 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
         }
     }
 
+    BackHandler {
+    }
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         BerellAppTheme {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -85,7 +92,7 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                             .fillMaxWidth(),
 
 
-                    )
+                        )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -162,6 +169,14 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                         Text("Log in")
                     }
 
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "logo",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                            .semantics { contentDescription = "Syncd Logo" }
+                    )
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {

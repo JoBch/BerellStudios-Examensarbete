@@ -69,7 +69,9 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
                 text = { Text("Home") },
                 leadingIcon = { Icon(Icons.Outlined.Home, contentDescription = null) },
                 onClick = { navController.navigate("landing") },
-                modifier = Modifier.semantics { contentDescription = "menu item home, back to start" }
+                modifier = Modifier.semantics {
+                    contentDescription = "menu item home, back to start"
+                }
             )
 
             DropdownMenuItem(
@@ -98,7 +100,12 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
                 leadingIcon = { Icon(Icons.Outlined.Warning, contentDescription = null) },
                 onClick = {
                     mainViewModel.logout(context)
-                    navController.navigate("login")
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+
                 },
                 modifier = Modifier.semantics { contentDescription = "menu item log out" }
             )

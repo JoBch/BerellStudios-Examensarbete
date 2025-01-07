@@ -11,13 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
 
-//Listan är överst
 @Composable
-fun TaskList(mainViewModel: MainViewModel, status: String, isLandingScreen: Boolean, context: Context) {
+fun TaskList(
+    mainViewModel: MainViewModel,
+    status: String,
+    isLandingScreen: Boolean,
+    context: Context
+) {
     val tasks by mainViewModel.tasks.collectAsState()
     val users = mainViewModel.users.collectAsState(initial = emptyList())
 
@@ -29,12 +32,6 @@ fun TaskList(mainViewModel: MainViewModel, status: String, isLandingScreen: Bool
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        /*Text(
-            text = status.replaceFirstChar { it.uppercaseChar() },
-            modifier = Modifier.padding(bottom = 8.dp)
-        )*/
-
-        // Använd LazyColumn direkt för att visa tasks
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
         ) {

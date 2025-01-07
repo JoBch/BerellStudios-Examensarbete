@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.TaskDTO
-import se.berellstudios.app.UserDTO
 
-//Columnerna är mitten
 @Composable
 fun TaskColumn(
     status: String,

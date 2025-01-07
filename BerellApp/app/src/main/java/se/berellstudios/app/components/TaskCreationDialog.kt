@@ -20,7 +20,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.contentDescription
@@ -31,7 +30,6 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import se.berellstudios.app.TaskDTO
 import se.berellstudios.app.UserDTO
 import se.berellstudios.app.screens.TaskStatus
-import se.berellstudios.app.ui.theme.Pink40
 import se.berellstudios.app.ui.theme.Pink80
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -148,7 +146,6 @@ fun TaskCreationDialog(
                     ) {
                         Text("Add task")
                     }
-
                 }
             }
         }

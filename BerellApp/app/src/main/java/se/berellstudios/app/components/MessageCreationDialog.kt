@@ -18,8 +18,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.view.HapticFeedbackConstantsCompat
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.MessageDTO
 import java.time.LocalDateTime
@@ -36,6 +38,7 @@ fun MessageCreationDialog(
     var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var deadline by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
+    val view = LocalView.current
 
     Dialog(onDismissRequest = onDismiss) {
         Box(
@@ -96,7 +99,12 @@ fun MessageCreationDialog(
                     onClick = {
                         if (message.isBlank()) {
                             errorMessage = "Message is empty, please write SOMETHING"
-                        } else {
+                            view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
+                        } else if(deadline == null){
+                            errorMessage = "Missing a deadline, please choose a deadline"
+                            view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
+                        }
+                        else {
                             errorMessage = ""
 
                             val messageDTO = MessageDTO(

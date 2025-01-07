@@ -1,7 +1,6 @@
 package se.berellstudios.app.components
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.TaskDTO
-import se.berellstudios.app.UserDTO
 import se.berellstudios.app.ui.theme.Pink40
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -43,7 +41,7 @@ fun TaskItem(
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Format för datum
-
+    val DarkGreen = Color(0xFF006400)
     // Dagens datum i samma format som deadline
     val currentDate = LocalDateTime.now().toLocalDate()
 
@@ -61,7 +59,7 @@ fun TaskItem(
     val deadlineColor = when {
         deadlineDate == null -> Color.Gray // Om ingen deadline är satt
         deadlineDate.isBefore(currentDate) -> Color.Red // Om deadline har passerat
-        else -> Pink40 // Om deadline är i framtiden
+        else -> DarkGreen // Om deadline är i framtiden
     }
 
     Box(
@@ -92,7 +90,7 @@ fun TaskItem(
                             text = "Status: ${task.status}",
                             style = MaterialTheme.typography.bodySmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = Color.Blue // Valfri färg för status
+                                color = Pink40// Valfri färg för status
                             ),
                             modifier = Modifier
                                 .padding(top = 8.dp)

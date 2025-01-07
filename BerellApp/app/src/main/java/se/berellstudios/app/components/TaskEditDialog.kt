@@ -16,7 +16,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,7 +31,6 @@ import se.berellstudios.app.TaskDTO
 import se.berellstudios.app.UserDTO
 import se.berellstudios.app.screens.TaskStatus
 import se.berellstudios.app.ui.theme.Pink80
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -60,9 +58,11 @@ fun TaskEditDialog(
                 .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.medium)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Edit Task ID: ${taskDTO.id}",
+                Text(
+                    "Edit Task ID: ${taskDTO.id}",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = Pink80)
+                    color = Pink80
+                )
                 OutlinedTextField(
                     value = taskMessage,
                     onValueChange = { taskMessage = it },
@@ -76,17 +76,22 @@ fun TaskEditDialog(
                     label = "Status",
                     options = TaskStatus.entries.map { it.displayName },
                     selectedOption = selectedStatus,
-                    onOptionSelected = { selectedStatus =
-                        TaskStatus.entries.toTypedArray()[it].toString()
+                    onOptionSelected = {
+                        selectedStatus =
+                            TaskStatus.entries.toTypedArray()[it].toString()
                     },
-                    modifier = Modifier.semantics { contentDescription = "Dropdown to select current status of task" }
+                    modifier = Modifier.semantics {
+                        contentDescription = "Dropdown to select current status of task"
+                    }
                 )
                 DropdownSelector(
                     label = "Priority",
                     options = listOf("1", "2", "3"),
                     selectedOption = selectedPriority.toString(),
                     onOptionSelected = { selectedPriority = it + 1 },
-                    modifier = Modifier.semantics { contentDescription = "Dropdown to select priority of task" }
+                    modifier = Modifier.semantics {
+                        contentDescription = "Dropdown to select priority of task"
+                    }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 DropdownSelector(
@@ -94,7 +99,9 @@ fun TaskEditDialog(
                     options = users.map { it.username },
                     selectedOption = selectedUser?.username ?: "None",
                     onOptionSelected = { index -> selectedUser = users[index] },
-                    modifier = Modifier.semantics { contentDescription = "Dropdown to set a user to the task" }
+                    modifier = Modifier.semantics {
+                        contentDescription = "Dropdown to set a user to the task"
+                    }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
@@ -120,15 +127,24 @@ fun TaskEditDialog(
                     Button(
                         onClick = {
                             if (selectedUser == null) {
-                                Toast.makeText(context, "Please select a user", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Please select a user", Toast.LENGTH_SHORT)
+                                    .show()
                                 view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             } else if (taskMessage.isEmpty()) {
-                                Toast.makeText(context, "Please enter a task description", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Please enter a task description",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             } else if (selectedDateTime == null) {
-                                Toast.makeText(context, "Please select a deadline", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Please select a deadline",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
-                            }  else {
+                            } else {
                                 // Kopiera taskDTO och fortsätt
                                 onEditTask(
                                     taskDTO.copy(

@@ -27,7 +27,7 @@ fun MessageEditDialog(
     messageDTO: MessageDTO,
     onDismiss: () -> Unit,
     onEditMessage: (MessageDTO) -> Unit,
-    ) {
+) {
     var message by remember { mutableStateOf(messageDTO.message) }
     var errorMessage by remember { mutableStateOf("") }
     var selectedDateTime by remember { mutableStateOf(messageDTO.deadline) }
@@ -95,12 +95,14 @@ fun MessageEditDialog(
                             errorMessage = "Message is empty, please write SOMETHING"
                         } else {
                             errorMessage = ""
-                            onEditMessage(messageDTO.copy(
-                                message = message,
-                                deadline = deadline,
-                                createdAt = "", // Set by the server
-                                user_id = null // Set by the server
-                            )) // Notify parent about message creation
+                            onEditMessage(
+                                messageDTO.copy(
+                                    message = message,
+                                    deadline = deadline,
+                                    createdAt = "", // Set by the server
+                                    user_id = null // Set by the server
+                                )
+                            ) // Notify parent about message creation
                             onDismiss() // Close dialog after successful creation
                         }
                     },
