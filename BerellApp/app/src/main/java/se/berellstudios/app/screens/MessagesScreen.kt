@@ -34,7 +34,6 @@ import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.R
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.DropdownMenuWithDetails
-import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.components.MessageCreationDialog
 import se.berellstudios.app.components.MessageList
 import se.berellstudios.app.ui.theme.BerellAppTheme

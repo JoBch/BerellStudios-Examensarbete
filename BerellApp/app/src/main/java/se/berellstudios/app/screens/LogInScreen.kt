@@ -3,6 +3,7 @@ package se.berellstudios.app.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,8 +42,6 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.R
-import se.berellstudios.app.RetrofitClient
-import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.ui.theme.Purple40
 
@@ -81,7 +80,15 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    Greeting(name = "${RetrofitClient.getUsername(context)}")
+                    Box( //Need this extra box to center the text
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("All Systems Go, All Syncd Up.")
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
                     //Username input

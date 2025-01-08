@@ -39,7 +39,6 @@ import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.R
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.DropdownMenuWithDetails
-import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.components.TaskCreationDialog
 import se.berellstudios.app.components.TaskList
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -54,17 +53,13 @@ enum class TaskStatus(val dbValue: String, val displayName: String) {
 fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
     LaunchedEffect(Unit) {
         mainViewModel.viewTasks()
+        mainViewModel.getAllUsers()
     }
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(TaskStatus.ONGOING) }
     val users by mainViewModel.users.collectAsState()
     val isLandingScreen by remember { mutableStateOf(false) }
-
-    //Load users when initiating screen
-    LaunchedEffect(Unit) {
-        mainViewModel.getAllUsers()
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         BerellAppTheme {

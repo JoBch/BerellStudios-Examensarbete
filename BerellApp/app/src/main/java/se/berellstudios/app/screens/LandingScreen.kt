@@ -91,7 +91,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Visa de tre uppgifter med närmast deadline
+                    //Show the three tasks with the closest deadline
                     Text("Tasks with the nearest deadline:")
                     if (tasks.isEmpty()) {
                         Text("No tasks available.")
@@ -99,20 +99,28 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                         tasks.take(3).forEach { task ->
                             TaskItem(
                                 task = task,
-                                mainViewModel = mainViewModel, // Skicka med mainViewModel
-                                context = context, // Skicka med context
+                                mainViewModel = mainViewModel,
+                                context = context,
                                 isLandingScreen = isLandingScreen,
                             )
                         }
                     }
-                    Text(text = "See more TASKS here",
+                    Box( //Need this extra box to center the text
                         modifier = Modifier
-                            .clickable {
-                                navController.navigate("tasks")
-                            }
-                            .semantics {
-                                contentDescription = "Clickable text to get to Task page"
-                            })
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        contentAlignment = Alignment.Center
+                    )
+                    {
+                        Text(text = "See more TASKS here",
+                            modifier = Modifier
+                                .clickable {
+                                    navController.navigate("tasks")
+                                }
+                                .semantics {
+                                    contentDescription = "Clickable text to get to Task page"
+                                })
+                    }
                 }
             }
         }
