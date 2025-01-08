@@ -64,7 +64,7 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
 
             HorizontalDivider()
 
-            // Second section
+            //Second section
             DropdownMenuItem(
                 text = { Text("Home") },
                 leadingIcon = { Icon(Icons.Outlined.Home, contentDescription = null) },
@@ -89,7 +89,7 @@ fun DropdownMenuWithDetails(navController: NavController, mainViewModel: MainVie
 
             HorizontalDivider()
 
-            // Third section
+            //Third section
             DropdownMenuItem(
                 text = { Text("About") },
                 leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },

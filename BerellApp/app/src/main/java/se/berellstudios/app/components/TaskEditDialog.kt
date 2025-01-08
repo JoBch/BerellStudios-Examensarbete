@@ -30,7 +30,6 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import se.berellstudios.app.TaskDTO
 import se.berellstudios.app.UserDTO
 import se.berellstudios.app.screens.TaskStatus
-import se.berellstudios.app.ui.theme.Pink80
 import java.time.format.DateTimeFormatter
 
 @Composable

@@ -134,6 +134,11 @@ object RetrofitClient {
         return sharedPref.getString("username", null)
     }
 
+    fun clearUsername(context: Context) {
+        val sharedPref = getEncryptedSharedPreferences(context)
+        sharedPref.edit().remove("usrname").apply()
+    }
+
     // Set role
     fun setRole(context: Context, role: String?) {
         val sharedPref = getEncryptedSharedPreferences(context)

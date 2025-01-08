@@ -1,7 +1,6 @@
 package se.berellstudios.app
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -52,15 +51,12 @@ class MainViewModel : ViewModel() {
                     RetrofitClient.setRole(context, role)
                     val username = JWTUtils.getClaim(accessToken, "username")
                     RetrofitClient.setUsername(context, username)
-
-                    println("Username: " + RetrofitClient.getUsername(context))
-                    Log.i("Tokens", "AccessToken: $accessToken --- RefreshToken $refreshToken")
                     onResult("Success")
                 } else {
                     onResult("Invalid credentials")
                 }
             } catch (e: Exception) {
-                println("Login failed: ${e.message}")
+                Toast.makeText(context, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 onResult("Error")
             }
         }
@@ -73,9 +69,7 @@ class MainViewModel : ViewModel() {
                 val loginRequest = UserRegisterRequest(email, username, password)
                 //Make the API call to the backend
                 val response = RetrofitClient.apiService.register(loginRequest)
-                println("Response from server${response.message}")
             } catch (e: Exception) {
-                //Handle any errors
                 println("Login failed: ${e.message}")
             }
         }
@@ -89,8 +83,11 @@ class MainViewModel : ViewModel() {
                 //After creating the message, reload the message list
                 viewMessages()
             } catch (e: Exception) {
-                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-                println("Failed to fetch messages: ${e.message}")
+                Toast.makeText(
+                    context,
+                    "Could not create message: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -116,7 +113,11 @@ class MainViewModel : ViewModel() {
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
                 viewMessages()
             } catch (e: Exception) {
-                println("Failed to delete message: ${e.message}")
+                Toast.makeText(
+                    context,
+                    "Failed to delete message: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -128,7 +129,8 @@ class MainViewModel : ViewModel() {
                 Toast.makeText(context, response.message, Toast.LENGTH_SHORT).show()
                 viewMessages()
             } catch (e: Exception) {
-                println("Failed to edit message: ${e.message}")
+                Toast.makeText(context, "Failed to edit message: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -154,7 +156,8 @@ class MainViewModel : ViewModel() {
                 //After creating the task, reload the task list
                 viewTasks()
             } catch (e: Exception) {
-                println("Failed to create task: ${e.message}")
+                Toast.makeText(context, "Failed to create task: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -169,12 +172,13 @@ class MainViewModel : ViewModel() {
                 println("Changed task: $task")
                 viewTasks()
             } catch (e: Exception) {
-                println("Failed to change task: ${e.message}")
+                Toast.makeText(context, "Failed to change task: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
 
-    fun editTask(context: Context, task: TaskDTO){
+    fun editTask(context: Context, task: TaskDTO) {
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.apiService.editTask(task)
@@ -182,7 +186,8 @@ class MainViewModel : ViewModel() {
                 //After creating the task, reload the task list
                 viewTasks()
             } catch (e: Exception) {
-                println("Failed to edit task: ${e.message}")
+                Toast.makeText(context, "Failed to edit task: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -213,6 +218,7 @@ class MainViewModel : ViewModel() {
         RetrofitClient.clearRefreshToken(context)
         RetrofitClient.clearAccessToken(context)
         RetrofitClient.clearRole(context)
+        RetrofitClient.clearUsername(context)
         _loggedIn.value = false
     }
 }

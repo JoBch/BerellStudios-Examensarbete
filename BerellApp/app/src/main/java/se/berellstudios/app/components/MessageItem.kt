@@ -40,7 +40,7 @@ fun MessageItem(
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    // Omvandla deadline till LocalDate
+    //Refractor deadline for readability
     val deadlineDate = try {
         message.deadline?.let { deadline ->
             LocalDateTime.parse(deadline, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
@@ -50,7 +50,7 @@ fun MessageItem(
         null
     }
 
-    // Omvandla deadline till LocalDate
+    //Refractor deadline for readability
     val deadlineTime = try {
         message.deadline?.let { deadline ->
             LocalDateTime.parse(deadline, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
@@ -73,7 +73,7 @@ fun MessageItem(
                     color = Color.Gray,
                     shape = RoundedCornerShape(8.dp)
                 )
-                .padding(16.dp) // Padding inuti boxen
+                .padding(16.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -91,7 +91,7 @@ fun MessageItem(
                 )
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically // Vertikal centrering av text och knapp
+                    verticalAlignment = Alignment.CenterVertically //Vertical alignment of text and button
                 ) {
                     IconButton(
                         onClick = {
@@ -104,19 +104,19 @@ fun MessageItem(
                             tint = Color.Red
                         )
                     }
-                    androidx.compose.material3.IconButton(
+                    IconButton(
                         onClick = {
                             showDialog = true
 
                         },
                         modifier = Modifier
-                            .padding(start = 8.dp) // Space mellan deadline-text och knappen
+                            .padding(start = 8.dp)
                             .semantics { contentDescription = "edit deadline button" }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit Icon",
-                            tint = MaterialTheme.colorScheme.primary // Anpassa färgen på ikonen
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
