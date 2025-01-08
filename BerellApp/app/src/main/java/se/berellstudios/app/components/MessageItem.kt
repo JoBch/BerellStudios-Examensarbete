@@ -28,6 +28,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.MessageDTO
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun MessageItem(
@@ -37,6 +39,27 @@ fun MessageItem(
     context: Context
 ) {
     var showDialog by remember { mutableStateOf(false) }
+
+    // Omvandla deadline till LocalDate
+    val deadlineDate = try {
+        message.deadline?.let { deadline ->
+            LocalDateTime.parse(deadline, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                .toLocalDate()
+        }
+    } catch (e: Exception) {
+        null
+    }
+
+    // Omvandla deadline till LocalDate
+    val deadlineTime = try {
+        message.deadline?.let { deadline ->
+            LocalDateTime.parse(deadline, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                .toLocalTime()
+        }
+    } catch (e: Exception) {
+        null
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -62,7 +85,7 @@ fun MessageItem(
                         .fillMaxWidth()
                 )
                 Text(
-                    text = "Date: ${message.deadline}",
+                    text = "Date: $deadlineDate, $deadlineTime",
                     color = Color.DarkGray,
                     modifier = Modifier.padding(top = 4.dp)
                 )

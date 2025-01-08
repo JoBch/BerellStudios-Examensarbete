@@ -24,6 +24,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.view.HapticFeedbackConstantsCompat
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.MessageDTO
+import se.berellstudios.app.ui.theme.Pink80
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -50,8 +51,10 @@ fun MessageCreationDialog(
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = "Create New Message",
+                    color = Pink80,
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
+
                 )
 
                 OutlinedTextField(

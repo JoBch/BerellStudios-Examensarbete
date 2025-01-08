@@ -90,7 +90,7 @@ fun LandingScreen(navController: NavController, mainViewModel: MainViewModel) {
                             DropdownMenuWithDetails(
                                 navController,
                                 mainViewModel
-                            ) // Menyn hamnar till höger
+                            )
                         }
                     }
 
