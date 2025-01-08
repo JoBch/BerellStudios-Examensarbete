@@ -72,7 +72,8 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 .padding(top = 16.dp)
                                 .semantics { contentDescription = "Syncd Logo" }
                         )
-                        Greeting(name = "${RetrofitClient.getUsername(context)}")
+                        Text("Messages",
+                            style = MaterialTheme.typography.headlineMedium)
                         Box(
                             modifier = Modifier
                                 .semantics {

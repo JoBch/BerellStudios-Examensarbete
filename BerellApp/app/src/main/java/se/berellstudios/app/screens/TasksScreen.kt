@@ -88,7 +88,8 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 .padding(top = 16.dp)
                                 .semantics { contentDescription = "Syncd Logo" }
                         )
-                        Greeting(name = "${RetrofitClient.getUsername(context)}")
+                        Text("Tasks",
+                            style = MaterialTheme.typography.headlineMedium)
                         Box(
                             modifier = Modifier
                                 .semantics {
