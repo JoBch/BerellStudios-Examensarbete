@@ -27,7 +27,7 @@ fun MessageEditDialog(
     messageDTO: MessageDTO,
     onDismiss: () -> Unit,
     onEditMessage: (MessageDTO) -> Unit,
-) {
+) {//Populating the values as default form the DTO
     var message by remember { mutableStateOf(messageDTO.message) }
     var errorMessage by remember { mutableStateOf("") }
     var selectedDateTime by remember { mutableStateOf(messageDTO.deadline) }
@@ -55,7 +55,7 @@ fun MessageEditDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Show error message if any
+                //Show error message if any
                 if (errorMessage.isNotEmpty()) {
                     Text(
                         text = errorMessage,
@@ -64,7 +64,7 @@ fun MessageEditDialog(
                     )
                 }
 
-                // Button to pick a date and time
+                //Button to pick a date and time
                 Button(
                     onClick = {
                         showDateTimePicker(context) { dateTime ->
@@ -79,7 +79,7 @@ fun MessageEditDialog(
                     Text("Pick a Date and Time")
                 }
 
-                // Show selected deadline
+                //Show selected deadline
                 if (deadline != null) {
                     Text(
                         text = "Selected Deadline: $deadline",
@@ -88,7 +88,7 @@ fun MessageEditDialog(
                     )
                 }
 
-                // Create message button
+                //Create message button
                 Button(
                     onClick = {
                         if (message.isBlank()) {
@@ -99,11 +99,11 @@ fun MessageEditDialog(
                                 messageDTO.copy(
                                     message = message,
                                     deadline = deadline,
-                                    createdAt = "", // Set by the server
-                                    user_id = null // Set by the server
+                                    createdAt = "",
+                                    user_id = null
                                 )
-                            ) // Notify parent about message creation
-                            onDismiss() // Close dialog after successful creation
+                            ) //Notify parent about message creation
+                            onDismiss() //Close dialog after successful creation
                         }
                     },
                     modifier = Modifier

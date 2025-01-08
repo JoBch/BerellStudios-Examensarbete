@@ -1,6 +1,7 @@
 package se.berellstudios.app.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.R
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.DropdownMenuWithDetails
+import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.components.MessageCreationDialog
 import se.berellstudios.app.components.MessageList
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -59,7 +61,8 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween //Ensures space between elements
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.logo),
@@ -69,13 +72,9 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 .padding(top = 16.dp)
                                 .semantics { contentDescription = "Syncd Logo" }
                         )
-                        Text(
-                            text = "Messages", style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier.weight(1f) // Texten fyller utrymmet horisontellt
-                        )
+                        Greeting(name = "${RetrofitClient.getUsername(context)}")
                         Box(
                             modifier = Modifier
-                                .align(Alignment.CenterVertically)
                                 .semantics {
                                     contentDescription = "Dropdown menu for alternatives in app"
                                 }
@@ -83,7 +82,7 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                             DropdownMenuWithDetails(
                                 navController,
                                 mainViewModel
-                            ) // Menyn hamnar till höger
+                            )
                         }
                     }
 

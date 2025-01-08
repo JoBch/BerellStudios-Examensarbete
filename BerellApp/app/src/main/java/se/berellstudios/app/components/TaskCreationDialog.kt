@@ -60,7 +60,9 @@ fun TaskCreationDialog(
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Create New Task",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = Pink80)
+                    color = Pink80,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
                 OutlinedTextField(
                     value = taskMessage,
                     onValueChange = { taskMessage = it },

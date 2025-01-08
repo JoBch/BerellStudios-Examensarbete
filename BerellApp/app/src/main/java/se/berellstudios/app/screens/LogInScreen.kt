@@ -41,6 +41,7 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.R
+import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.ui.theme.Purple40
@@ -80,7 +81,7 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    Greeting(name = "New user")
+                    Greeting(name = "${RetrofitClient.getUsername(context)}")
                     Spacer(modifier = Modifier.height(16.dp))
 
                     //Username input

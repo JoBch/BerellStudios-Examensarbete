@@ -12,7 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL_JOEL = "http://192.168.1.102:8080"  //Joels IP address
+    private const val BASE_URL_JOEL = "http://192.168.1.145:8080"  //Joels IP address
     private const val BASE_URL_ANDREAS =
         "http://192.168.1.139:8080"  //Andreas IP address TODO visst slutade din på .139?
     private var jwtToken: String? = null //Used locally for authInterceptor

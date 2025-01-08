@@ -1,6 +1,7 @@
 package se.berellstudios.app.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,7 @@ import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.R
 import se.berellstudios.app.RetrofitClient
 import se.berellstudios.app.components.DropdownMenuWithDetails
+import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.components.TaskCreationDialog
 import se.berellstudios.app.components.TaskList
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -57,7 +59,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
     val users by mainViewModel.users.collectAsState()
     var isLandingScreen by remember { mutableStateOf(false) }
 
-    // Ladda användare när skärmen laddas
+    //Load users when initiating screen
     LaunchedEffect(Unit) {
         mainViewModel.getAllUsers()
     }
@@ -75,7 +77,8 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween //Ensures space between elements
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.logo),
@@ -85,29 +88,19 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 .padding(top = 16.dp)
                                 .semantics { contentDescription = "Syncd Logo" }
                         )
-
-                        Text(
-                            "Tasks", style = MaterialTheme.typography.headlineMedium,
-                            modifier = Modifier
-                                .weight(1f) // För att göra så att texten får ta upp ledig plats
-                        )
-
+                        Greeting(name = "${RetrofitClient.getUsername(context)}")
                         Box(
                             modifier = Modifier
-                                .align(Alignment.CenterVertically)
                                 .semantics {
                                     contentDescription = "Dropdown menu for alternatives in app"
                                 }
-
                         ) {
-
                             DropdownMenuWithDetails(
                                 navController,
                                 mainViewModel
-                            ) // Menyn hamnar till höger
+                            )
                         }
                     }
-                    // Header och skapa ny task-knapp
 
                     if (RetrofitClient.getRole(context) == "admin") {
                         Row(

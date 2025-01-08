@@ -39,7 +39,7 @@ fun TaskEditDialog(
     onDismiss: () -> Unit,
     onEditTask: (TaskDTO) -> Unit,
     users: List<UserDTO>
-) { //Populating the values as deafault form the DTO
+) { //Populating the values as default form the DTO
     var taskMessage by remember { mutableStateOf(taskDTO.messageContent) }
     var selectedStatus by remember { mutableStateOf(taskDTO.status) }
     var selectedPriority by remember { mutableStateOf(taskDTO.priority) }
@@ -59,9 +59,9 @@ fun TaskEditDialog(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    "Edit Task ID: ${taskDTO.id}",
+                    "Edit Task",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = Pink80
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
                 OutlinedTextField(
                     value = taskMessage,
@@ -69,7 +69,7 @@ fun TaskEditDialog(
                     label = { Text("Task Message") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = "textfield, write new task here" }
+                        .semantics { contentDescription = "textfield, write new task text here" }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 DropdownSelector(
@@ -95,7 +95,7 @@ fun TaskEditDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 DropdownSelector(
-                    label = "Assigned User", //TODO kanske få till så att den visar username här istället
+                    label = "Assigned User",
                     options = users.map { it.username },
                     selectedOption = selectedUser?.username ?: "None",
                     onOptionSelected = { index -> selectedUser = users[index] },
@@ -145,7 +145,7 @@ fun TaskEditDialog(
                                 ).show()
                                 view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             } else {
-                                // Kopiera taskDTO och fortsätt
+                                //Copy taskDTO and continue
                                 onEditTask(
                                     taskDTO.copy(
                                         messageContent = taskMessage,
@@ -155,8 +155,8 @@ fun TaskEditDialog(
                                         createdTime = "",
                                         user_id = selectedUser!!.id
                                     )
-                                )
-                                onDismiss() // Stäng dialogen efter skapande
+                                )//Notify parent about message creation
+                                onDismiss() //Close dialog after successful creation
                             }
                         },
                         modifier = Modifier
