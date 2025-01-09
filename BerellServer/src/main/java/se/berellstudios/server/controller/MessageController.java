@@ -152,8 +152,6 @@ public class MessageController {
             jwtUtil.jwtCheck(token, user);
 
             String encryptedMessage = aesUtil.encryptMessage(messageDTO.getMessage());
-            //Fetch the user
-            UserEntity assignedByUser = userRepository.findById(messageDTO.getUser_id());
 
             //Update and save the message entity
             Optional<MessageEntity> existingMessage = messageRepository.findById((long) messageDTO.getId());

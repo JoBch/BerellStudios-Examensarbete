@@ -12,9 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL_JOEL = "http://192.168.1.145:8080"  //Joels IP address
-    private const val BASE_URL_ANDREAS =
-        "http://192.168.1.139:8080"  //Andreas IP address TODO visst slutade din på .139?
+    private const val BASE_URL = "http://10.0.2.2:8080"  //Android emulator ip
     private var jwtToken: String? = null //Used locally for authInterceptor
     lateinit var apiService: ApiService
 
@@ -72,7 +70,7 @@ object RetrofitClient {
     fun initializeRetrofit(context: Context) {
         val client = createClient(context)
         apiService = Retrofit.Builder()
-            .baseUrl(BASE_URL_JOEL)
+            .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -117,18 +115,16 @@ object RetrofitClient {
     }
 
 
-    // Load the token from EncryptedSharedPreferences
+    //Load the token from EncryptedSharedPreferences and set it locally on initialization
     fun loadToken(context: Context) {
         jwtToken = getAccessToken(context)
     }
 
-    // Set username
     fun setUsername(context: Context, username: String?) {
         val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().putString("username", username).apply()
     }
 
-    // Get username
     fun getUsername(context: Context): String? {
         val sharedPref = getEncryptedSharedPreferences(context)
         return sharedPref.getString("username", null)
@@ -136,63 +132,53 @@ object RetrofitClient {
 
     fun clearUsername(context: Context) {
         val sharedPref = getEncryptedSharedPreferences(context)
-        sharedPref.edit().remove("usrname").apply()
+        sharedPref.edit().remove("username").apply()
     }
 
-    // Set role
     fun setRole(context: Context, role: String?) {
         val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().putString("user_role", role).apply()
     }
 
-    // Get role
     fun getRole(context: Context): String? {
         val sharedPref = getEncryptedSharedPreferences(context)
         return sharedPref.getString("user_role", null)
     }
 
-    // Clear role
     fun clearRole(context: Context) {
         val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().remove("user_role").apply()
     }
 
-    // Set refresh token
     fun setRefreshToken(context: Context, refreshToken: String) {
         val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().putString("refreshToken", refreshToken).apply()
     }
 
-    // Clear refresh token
     fun clearRefreshToken(context: Context) {
         val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().remove("refreshToken").apply()
     }
 
-    // Get refresh token
     fun getRefreshToken(context: Context): String? {
         val sharedPref = getEncryptedSharedPreferences(context)
         return sharedPref.getString("refreshToken", null)
     }
 
-    // Set access token
     fun setAccessToken(context: Context, token: String) {
         val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().putString("accessToken", token).apply()
         jwtToken = token // Update local reference for the interceptor
     }
 
-    // Get access token
     fun getAccessToken(context: Context): String? {
         val sharedPref = getEncryptedSharedPreferences(context)
         return sharedPref.getString("accessToken", null)
     }
 
-    // Clear access token
     fun clearAccessToken(context: Context) {
         val sharedPref = getEncryptedSharedPreferences(context)
         sharedPref.edit().remove("accessToken").apply()
         jwtToken = null
     }
 }
-

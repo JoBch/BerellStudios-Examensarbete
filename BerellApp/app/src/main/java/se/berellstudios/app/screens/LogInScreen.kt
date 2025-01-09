@@ -3,7 +3,6 @@ package se.berellstudios.app.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -94,6 +93,7 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                     //Username input
                     OutlinedTextField(
                         value = username,
+                        singleLine = true,
                         onValueChange = { username = it },
                         label = { Text("Email") },
                         modifier = Modifier
@@ -107,6 +107,7 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                     //Password input
                     OutlinedTextField(
                         value = password,
+                        singleLine = true,
                         onValueChange = { password = it },
                         label = { Text("Password") },
                         visualTransformation = PasswordVisualTransformation(),
@@ -195,8 +196,8 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                                     navController.navigate("createuser")
                                     view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                                 }
-                                .align(Alignment.BottomCenter) // Placera längst ner i Boxen
-                                .padding(bottom = 16.dp), // Lägg till lite padding för bättre utseende
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 16.dp),
                             style = TextStyle(
                                 fontSize = 15.sp,
                                 color = Purple40,

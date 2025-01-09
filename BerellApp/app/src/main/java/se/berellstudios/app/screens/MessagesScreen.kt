@@ -1,14 +1,11 @@
 package se.berellstudios.app.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -25,15 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
-import se.berellstudios.app.R
 import se.berellstudios.app.RetrofitClient
-import se.berellstudios.app.components.DropdownMenuWithDetails
+import se.berellstudios.app.components.MenuAndImageBar
 import se.berellstudios.app.components.MessageCreationDialog
 import se.berellstudios.app.components.MessageList
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -56,35 +49,8 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(8.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween //Ensures space between elements
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.logo),
-                            contentDescription = "logo",
-                            modifier = Modifier
-                                .width(40.dp)
-                                .padding(top = 16.dp)
-                                .semantics { contentDescription = "Syncd Logo" }
-                        )
-                        Text("Messages",
-                            style = MaterialTheme.typography.headlineMedium)
-                        Box(
-                            modifier = Modifier
-                                .semantics {
-                                    contentDescription = "Dropdown menu for alternatives in app"
-                                }
-                        ) {
-                            DropdownMenuWithDetails(
-                                navController,
-                                mainViewModel
-                            )
-                        }
-                    }
+                    //Showing the top with logo, menu and text
+                    MenuAndImageBar(navController, mainViewModel, "Messages")
 
                     if (RetrofitClient.getRole(context) == "admin") {
                         Row(

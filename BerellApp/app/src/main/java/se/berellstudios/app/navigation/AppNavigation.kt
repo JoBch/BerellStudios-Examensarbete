@@ -1,4 +1,4 @@
-package se.berellstudios.app.Navigation
+package se.berellstudios.app.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
