@@ -72,11 +72,6 @@ With Syncd, musicians and bands can:
 
 ---
 
-### **License**
-This project is licensed under the [MIT License](LICENSE). Feel free to use and modify it as per your needs.
-
----
-
 ### **Authors**
 Developed as part of the Java23 exam project by:
 - Andreas Jabrell
