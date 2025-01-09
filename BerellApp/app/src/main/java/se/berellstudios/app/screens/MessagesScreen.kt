@@ -1,6 +1,7 @@
 package se.berellstudios.app.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,13 +66,18 @@ fun MessagesScreen(navController: NavController, mainViewModel: MainViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween //Ensures space between elements
                     ) {
                         Image(
+
                             painter = painterResource(id = R.drawable.logo),
                             contentDescription = "logo",
                             modifier = Modifier
                                 .width(40.dp)
                                 .padding(top = 16.dp)
                                 .semantics { contentDescription = "Syncd Logo" }
+                                .clickable {
+                                    navController.navigate("landing")
+                                }
                         )
+
                         Text("Messages",
                             style = MaterialTheme.typography.headlineMedium)
                         Box(

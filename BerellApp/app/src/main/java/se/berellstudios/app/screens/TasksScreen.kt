@@ -1,6 +1,7 @@
 package se.berellstudios.app.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -87,6 +88,9 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                                 .width(40.dp)
                                 .padding(top = 16.dp)
                                 .semantics { contentDescription = "Syncd Logo" }
+                                .clickable {
+                                    navController.navigate("landing")
+                                }
                         )
                         Text("Tasks",
                             style = MaterialTheme.typography.headlineMedium)

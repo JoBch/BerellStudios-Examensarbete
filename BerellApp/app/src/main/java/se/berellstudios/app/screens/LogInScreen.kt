@@ -46,7 +46,6 @@ import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.ui.theme.Purple40
 
-
 //Landing page when loggedin=false
 @Composable
 fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
