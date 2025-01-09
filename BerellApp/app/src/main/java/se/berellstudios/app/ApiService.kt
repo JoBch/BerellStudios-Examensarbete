@@ -93,8 +93,5 @@ interface ApiService {
         @Body request: TaskDTO,
     ): MessageResponse
 
-    @GET("/users/ping")
-    fun ping(): Call<PingResponse>
-
 }
 

@@ -58,7 +58,8 @@ fun TaskCreationDialog(
                 .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.medium)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Create New Task",
+                Text(
+                    "Create New Task",
                     style = MaterialTheme.typography.headlineMedium,
                     color = Pink80,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -77,14 +78,18 @@ fun TaskCreationDialog(
                     options = TaskStatus.entries.map { it.displayName },
                     selectedOption = selectedStatus.displayName,
                     onOptionSelected = { selectedStatus = TaskStatus.entries.toTypedArray()[it] },
-                    modifier = Modifier.semantics { contentDescription = "Dropdown to select current status of task" }
+                    modifier = Modifier.semantics {
+                        contentDescription = "Dropdown to select current status of task"
+                    }
                 )
                 DropdownSelector(
                     label = "Priority",
                     options = listOf("1", "2", "3"),
                     selectedOption = selectedPriority.toString(),
                     onOptionSelected = { selectedPriority = it + 1 },
-                    modifier = Modifier.semantics { contentDescription = "Dropdown to select priority of task" }
+                    modifier = Modifier.semantics {
+                        contentDescription = "Dropdown to select priority of task"
+                    }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 DropdownSelector(
@@ -92,7 +97,9 @@ fun TaskCreationDialog(
                     options = users.map { it.username },
                     selectedOption = selectedUser?.username ?: "None",
                     onOptionSelected = { index -> selectedUser = users[index] },
-                    modifier = Modifier.semantics { contentDescription = "Dropdown to set a user to the task" }
+                    modifier = Modifier.semantics {
+                        contentDescription = "Dropdown to set a user to the task"
+                    }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
@@ -118,28 +125,37 @@ fun TaskCreationDialog(
                     Button(
                         onClick = {
                             if (selectedUser == null) {
-                                Toast.makeText(context, "Please select a user", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Please select a user", Toast.LENGTH_SHORT)
+                                    .show()
                                 view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             } else if (taskMessage.isEmpty()) {
-                                Toast.makeText(context, "Please enter a task description", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Please enter a task description",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                             } else if (selectedDateTime == null) {
-                                Toast.makeText(context, "Please select a deadline", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Please select a deadline",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
-                            }  else {
+                            } else {
                                 // Skapa taskDTO och fortsätt
                                 onCreateTask(
                                     TaskDTO(
                                         id = null,
                                         messageContent = taskMessage,
-                                        status = selectedStatus.dbValue, // Se till att statusen är korrekt
+                                        status = selectedStatus.dbValue,
                                         deadline = deadline,
                                         priority = selectedPriority,
                                         createdTime = "",
                                         user_id = selectedUser!!.id
                                     )
                                 )
-                                onDismiss() // Stäng dialogen efter skapande
+                                onDismiss() ////Close dialog after creation
                             }
                         },
                         modifier = Modifier

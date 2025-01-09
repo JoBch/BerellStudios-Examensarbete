@@ -1,5 +1,6 @@
 package se.berellstudios.app.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,13 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
-import se.berellstudios.app.components.Greeting
+import se.berellstudios.app.R
 import se.berellstudios.app.ui.theme.BerellAppTheme
 
 @Composable
@@ -46,24 +50,27 @@ fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel)
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    Greeting(name = "new User who wants to create account")
+                    Text("Welcome new user, please enter your details.")
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(
                         value = email,
+                        singleLine = true,
                         onValueChange = { email = it },
-                        label = { Text("your email please") },
+                        label = { Text("Email") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = username,
+                        singleLine = true,
                         onValueChange = { username = it },
-                        label = { Text("feed me a GOOD username") },
+                        label = { Text("Username") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = password,
+                        singleLine = true,
                         onValueChange = { password = it },
-                        label = { Text("a secure password PLEASE") },
+                        label = { Text("Password") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -72,11 +79,20 @@ fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel)
                             text = errorMessage,
                             color = Color.Red,
                             modifier = Modifier.padding(top = 8.dp),
-                            style = TextStyle(fontSize = 14.sp) // För flexibilitet med skärmar
+                            style = TextStyle(fontSize = 14.sp)
                         )
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "logo",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                            .semantics { contentDescription = "Syncd Logo" }
+                    )
 
                     Box(
                         modifier = Modifier.fillMaxSize()
@@ -96,8 +112,8 @@ fun CreateUserScreen(navController: NavController, mainViewModel: MainViewModel)
                                 }
                             },
                             modifier = Modifier
-                                .align(Alignment.BottomCenter) // Placera knappen längst ner
-                                .padding(bottom = 16.dp) // För estetik
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 16.dp)
                         ) {
                             Text(
                                 "Create user and go back to log in",

@@ -3,8 +3,8 @@ package se.berellstudios.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import se.berellstudios.app.navigation.AppNavigation
 import se.berellstudios.app.ui.theme.BerellAppTheme
-import se.berellstudios.app.Navigation.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -64,7 +64,7 @@ fun MessageCreationDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Show error message if any
+                //Show error message if any
                 if (errorMessage.isNotEmpty()) {
                     Text(
                         text = errorMessage,
@@ -73,7 +73,7 @@ fun MessageCreationDialog(
                     )
                 }
 
-                // Button to pick a date and time
+                //Button to pick a date and time
                 Button(
                     onClick = {
                         showDateTimePicker(context) { dateTime ->
@@ -88,7 +88,7 @@ fun MessageCreationDialog(
                     Text("Pick a Date and Time")
                 }
 
-                // Show selected deadline
+                //Show selected deadline
                 if (deadline != null) {
                     Text(
                         text = "Selected Deadline: $deadline",
@@ -97,17 +97,16 @@ fun MessageCreationDialog(
                     )
                 }
 
-                // Create message button
+                //Create message button
                 Button(
                     onClick = {
                         if (message.isBlank()) {
                             errorMessage = "Message is empty, please write SOMETHING"
                             view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
-                        } else if(deadline == null){
+                        } else if (deadline == null) {
                             errorMessage = "Missing a deadline, please choose a deadline"
                             view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
-                        }
-                        else {
+                        } else {
                             errorMessage = ""
 
                             val messageDTO = MessageDTO(
@@ -129,7 +128,7 @@ fun MessageCreationDialog(
                     Text("Create Message")
                 }
 
-                // Cancel button
+                //Cancel button
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier

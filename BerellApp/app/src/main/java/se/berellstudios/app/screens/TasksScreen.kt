@@ -1,8 +1,5 @@
 package se.berellstudios.app.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -31,16 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
-import se.berellstudios.app.R
 import se.berellstudios.app.RetrofitClient
-import se.berellstudios.app.components.DropdownMenuWithDetails
-import se.berellstudios.app.components.Greeting
+import se.berellstudios.app.components.MenuAndImageBar
 import se.berellstudios.app.components.TaskCreationDialog
 import se.berellstudios.app.components.TaskList
 import se.berellstudios.app.ui.theme.BerellAppTheme
@@ -53,17 +46,15 @@ enum class TaskStatus(val dbValue: String, val displayName: String) {
 
 @Composable
 fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
-    mainViewModel.viewTasks()
+    LaunchedEffect(Unit) {
+        mainViewModel.viewTasks()
+        mainViewModel.getAllUsers()
+    }
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(TaskStatus.ONGOING) }
     val users by mainViewModel.users.collectAsState()
-    var isLandingScreen by remember { mutableStateOf(false) }
-
-    //Load users when initiating screen
-    LaunchedEffect(Unit) {
-        mainViewModel.getAllUsers()
-    }
+    val isLandingScreen by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         BerellAppTheme {
@@ -74,38 +65,8 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(8.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween //Ensures space between elements
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.logo),
-                            contentDescription = "logo",
-                            modifier = Modifier
-                                .width(40.dp)
-                                .padding(top = 16.dp)
-                                .semantics { contentDescription = "Syncd Logo" }
-                                .clickable {
-                                    navController.navigate("landing")
-                                }
-                        )
-                        Text("Tasks",
-                            style = MaterialTheme.typography.headlineMedium)
-                        Box(
-                            modifier = Modifier
-                                .semantics {
-                                    contentDescription = "Dropdown menu for alternatives in app"
-                                }
-                        ) {
-                            DropdownMenuWithDetails(
-                                navController,
-                                mainViewModel
-                            )
-                        }
-                    }
+                    //Showing the top with logo, menu and text
+                    MenuAndImageBar(navController, mainViewModel, "Tasks")
 
                     if (RetrofitClient.getRole(context) == "admin") {
                         Row(
@@ -127,7 +88,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                             }
                         }
                     }
-                    // Tabbar för Task Status
+                    //Tabs for task status
                     val tabs = TaskStatus.entries
                     TabRow(selectedTabIndex = tabs.indexOf(selectedTab),
                         modifier = Modifier.semantics {
@@ -147,7 +108,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Visa uppgifter för vald status
+                    //Show tasks by status
                     when (selectedTab) {
                         TaskStatus.TODO -> TaskList(
                             mainViewModel = mainViewModel,
@@ -176,7 +137,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                 }
             }
 
-            // Dialog för att skapa en uppgift
+            //Dialog for creating a new task
             if (showDialog) {
                 TaskCreationDialog(
                     onDismiss = { showDialog = false },
@@ -184,7 +145,7 @@ fun TasksScreen(navController: NavController, mainViewModel: MainViewModel) {
                         mainViewModel.createTask(context, task)
                         showDialog = false
                     },
-                    users = users // Skickar användarlistan till dialogen
+                    users = users //Send the users to the dialog
                 )
             }
         }

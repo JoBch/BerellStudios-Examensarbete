@@ -3,6 +3,7 @@ package se.berellstudios.app
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 
+//Using this to extract claims from the token and put them in sharedPrefs
 object JWTUtils {
     fun getClaim(token: String, claim: String): String? {
         return try {

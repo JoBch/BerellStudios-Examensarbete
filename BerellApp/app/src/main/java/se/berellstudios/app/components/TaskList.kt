@@ -22,9 +22,8 @@ fun TaskList(
     context: Context
 ) {
     val tasks by mainViewModel.tasks.collectAsState()
-    val users = mainViewModel.users.collectAsState(initial = emptyList())
 
-    // Filtrera tasks baserat på status
+    //Filter tasks based on status
     val filteredTasks = tasks.filter { it.status == status }
 
     Column(

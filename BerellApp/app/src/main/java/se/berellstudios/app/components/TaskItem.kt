@@ -42,30 +42,30 @@ fun TaskItem(
     var showDialog by remember { mutableStateOf(false) }
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd") // Format för datum
     val DarkGreen = Color(0xFF006400)
-    // Dagens datum i samma format som deadline
+    //Todays date in the same format as "deadline"
     val currentDate = LocalDateTime.now().toLocalDate()
 
-    // Omvandla deadline till LocalDate
+    //Refractor deadline to localdate
     val deadlineDate = try {
         task.deadline?.let { deadline ->
             LocalDateTime.parse(deadline, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                 .toLocalDate()
         }
     } catch (e: Exception) {
-        null // Hantera eventuell parse-error
+        null
     }
 
-    // Bestäm färg baserat på deadline
+    //Set colour based on deadline
     val deadlineColor = when {
-        deadlineDate == null -> Color.Gray // Om ingen deadline är satt
-        deadlineDate.isBefore(currentDate) -> Color.Red // Om deadline har passerat
-        else -> DarkGreen // Om deadline är i framtiden
+        deadlineDate == null -> Color.Gray //If no deadline
+        deadlineDate.isBefore(currentDate) -> Color.Red //If deadline passed
+        else -> DarkGreen //If deadline not passed
     }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(12.dp) // Yttre padding runt hela tasken för mer space
+            .padding(12.dp)
     ) {
         Box(
             modifier = Modifier
@@ -75,22 +75,22 @@ fun TaskItem(
                     color = Color.Gray,
                     shape = RoundedCornerShape(8.dp)
                 )
-                .padding(16.dp) // Padding inuti boxen
+                .padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically // Vertikal centrering
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Kolumn för text (taskens innehåll och deadline)
+                //Column for the task to populate
                 Column(
-                    modifier = Modifier.weight(1f) // Tar upp resterande utrymme
+                    modifier = Modifier.weight(1f)
                 ) {
                     if (isLandingScreen) {
                         Text(
                             text = "Status: ${task.status}",
                             style = MaterialTheme.typography.bodySmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = Pink40// Valfri färg för status
+                                color = Pink40
                             ),
                             modifier = Modifier
                                 .padding(top = 8.dp)
@@ -103,38 +103,38 @@ fun TaskItem(
                     )
                     deadlineDate?.let { date ->
                         Row(
-                            verticalAlignment = Alignment.CenterVertically // Vertikal centrering av text och knapp
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = "Deadline: ${date.format(dateFormatter)}",
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     fontWeight = FontWeight.Bold,
-                                    color = deadlineColor // Använd deadlineColor här
+                                    color = deadlineColor
                                 ),
                                 modifier = Modifier
                                     .padding(top = 8.dp)
                                     .semantics { contentDescription = "deadline for the task" }
                             )
-                            if(!isLandingScreen){
+                            //Checking if the call comes from the landingscreen or not
+                            if (!isLandingScreen) {
                                 androidx.compose.material3.IconButton(
                                     onClick = {
                                         showDialog = true
                                     },
                                     modifier = Modifier
-                                        .padding(start = 8.dp) // Space mellan deadline-text och knappen
+                                        .padding(start = 8.dp)
                                         .semantics { contentDescription = "edit deadline button" }
                                 ) {
                                     androidx.compose.material3.Icon(
                                         imageVector = androidx.compose.material.icons.Icons.Default.Edit,
                                         contentDescription = "Edit Icon",
-                                        tint = MaterialTheme.colorScheme.primary // Anpassa färgen på ikonen
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
                             }
-                            // Knappen längst till höger
                             Button(
                                 modifier = Modifier
-                                    .padding(start = 16.dp) // Space mellan text och knapp
+                                    .padding(start = 16.dp)
                                     .semantics { contentDescription = "Change task status" },
                                 onClick = {
                                     mainViewModel.changeTaskStatus(context, task)

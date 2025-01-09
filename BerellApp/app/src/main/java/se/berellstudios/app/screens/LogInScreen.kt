@@ -41,8 +41,6 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.navigation.NavController
 import se.berellstudios.app.MainViewModel
 import se.berellstudios.app.R
-import se.berellstudios.app.RetrofitClient
-import se.berellstudios.app.components.Greeting
 import se.berellstudios.app.ui.theme.BerellAppTheme
 import se.berellstudios.app.ui.theme.Purple40
 
@@ -80,12 +78,21 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                         .padding(innerPadding)
                         .padding(16.dp)
                 ) {
-                    Greeting(name = "${RetrofitClient.getUsername(context)}")
+                    Box( //Need this extra box to center the text
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("All Systems Go, All Syncd Up.")
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
                     //Username input
                     OutlinedTextField(
                         value = username,
+                        singleLine = true,
                         onValueChange = { username = it },
                         label = { Text("Email") },
                         modifier = Modifier
@@ -99,6 +106,7 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                     //Password input
                     OutlinedTextField(
                         value = password,
+                        singleLine = true,
                         onValueChange = { password = it },
                         label = { Text("Password") },
                         visualTransformation = PasswordVisualTransformation(),
@@ -187,8 +195,8 @@ fun LogInScreen(navController: NavController, mainViewModel: MainViewModel) {
                                     navController.navigate("createuser")
                                     view.performHapticFeedback(HapticFeedbackConstantsCompat.KEYBOARD_PRESS)
                                 }
-                                .align(Alignment.BottomCenter) // Placera längst ner i Boxen
-                                .padding(bottom = 16.dp), // Lägg till lite padding för bättre utseende
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 16.dp),
                             style = TextStyle(
                                 fontSize = 15.sp,
                                 color = Purple40,
